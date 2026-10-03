@@ -1,6 +1,6 @@
 # Reporte digital del checklist de entrega de trabajos de mantenimiento
 
-Proyecto del curso · Equipo N°1 · Departamento de Ingeniería Industrial, USACH.
+Equipo N°1 
 
 ## Qué es la solución
 
@@ -68,4 +68,5 @@ Equipo N°1:
 - Aldo Castillo
 - Felipe Narbona
 - Sebastián Narbona
-- Nicolás Pacheco
+- Bastián Garay
+  
