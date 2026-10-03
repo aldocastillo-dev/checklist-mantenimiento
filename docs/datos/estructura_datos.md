@@ -1,0 +1,92 @@
+# Estructura de datos preliminar
+
+## 1. Diagrama
+
+```mermaid
+erDiagram
+    USUARIO ||--o{ CHECKLIST : "crea"
+    CHECKLIST ||--o{ DETALLE_TECNICO : "tiene"
+    CHECKLIST ||--o{ FOTO : "adjunta"
+    CHECKLIST ||--o{ FIRMA : "lleva"
+
+    USUARIO {
+        int id_usuario PK
+        string nombre
+        string correo
+        string rol "supervisor o programador"
+    }
+    CHECKLIST {
+        int id_checklist PK
+        int id_usuario FK
+        string area
+        string equipo
+        string actividad
+        datetime fecha_turno
+        string turno
+        datetime hora_inicio
+        datetime hora_termino
+        string n_ot "opcional"
+        int n_trabajadores
+        int min_traslado
+        int min_espera_bloqueo
+        float horas_hombre
+        string estado "pendiente o enviado"
+    }
+    DETALLE_TECNICO {
+        int id_detalle PK
+        int id_checklist FK
+        string tipo "causa_falla, repuesto, medicion, pendiente"
+        string descripcion
+    }
+    FOTO {
+        int id_foto PK
+        int id_checklist FK
+        string foto_url
+    }
+    FIRMA {
+        int id_firma PK
+        int id_checklist FK
+        string rol_firma "entrega o recibe"
+        string nombre_firmante
+        string firma_url
+    }
+```
+
+## 2. Campos obligatorios y ejemplos
+
+Campos obligatorios (los que no pueden quedar vacíos):
+- USUARIO: id_usuario, nombre, correo, rol
+- CHECKLIST: id_checklist, id_usuario, area, equipo, actividad, fecha_turno, turno, hora_inicio, hora_termino, n_trabajadores, horas_hombre, estado. Opcionales: n_ot, min_traslado, min_espera_bloqueo.
+- DETALLE_TECNICO: id_detalle, id_checklist, tipo, descripcion
+- FOTO: id_foto, id_checklist, foto_url
+- FIRMA: id_firma, id_checklist, rol_firma, nombre_firmante, firma_url
+
+### USUARIO
+| id_usuario | nombre | correo | rol |
+|---|---|---|---|
+| 1 | Juan Pérez | jperez@ejemplo.cl | supervisor |
+| 2 | Marta Soto | msoto@ejemplo.cl | programador |
+
+### CHECKLIST
+| id_checklist | id_usuario | area | equipo | actividad | fecha_turno | turno | hora_inicio | hora_termino | n_ot | n_trabajadores | min_traslado | min_espera_bloqueo | horas_hombre | estado |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 101 | 1 | Chancado | Correa CV-102 | Cambio de polín de carga | 2026-09-25 | noche | 2026-09-25 20:15 | 2026-09-25 22:40 | 4500231987 | 3 | 70 | 35 | 12.6 | enviado |
+| 102 | 1 | Hidráulica | Unidad UH-04 | Cambio de filtro de retorno | 2026-09-26 | día | 2026-09-26 09:00 | 2026-09-26 11:30 | | 2 | 30 | 0 | 5.0 | pendiente |
+
+### DETALLE_TECNICO
+| id_detalle | id_checklist | tipo | descripcion |
+|---|---|---|---|
+| 1 | 101 | causa_falla | Rodamiento trabado |
+| 2 | 101 | repuesto | Polín #152, P/N 36-4471 |
+
+### FOTO
+| id_foto | id_checklist | foto_url |
+|---|---|---|
+| 1 | 101 | checklists/101/foto1.jpg |
+| 2 | 102 | checklists/102/foto1.jpg |
+
+### FIRMA
+| id_firma | id_checklist | rol_firma | nombre_firmante | firma_url |
+|---|---|---|---|---|
+| 1 | 101 | entrega | Juan Pérez | firmas/101_entrega.png |
+| 2 | 101 | recibe | R. Salas | firmas/101_recibe.png |
