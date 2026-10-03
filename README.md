@@ -66,7 +66,7 @@ checklist-mantencion/
 Equipo N°1:
 
 - Aldo Castillo
-- Felipe
+- Felipe Narbona
 - Sebastián Narbona
 - Bastián Garay
   
