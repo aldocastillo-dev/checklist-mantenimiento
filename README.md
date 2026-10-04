@@ -29,6 +29,12 @@ Aún no hay nada que ejecutar. Esta sección se completará cuando exista una pr
 
 ## En qué estado está
 Etapa de diseño: propuesta de valor, caso de uso, maqueta, roadmap y estructura de datos preliminar. Pendiente de evaluar la viabilidad del modo sin conexión con sincronización.
+| Entregable | Estado |
+|---|---|
+| Avance 1: propuesta de valor, alcance y usuarios | Entregado (`docs/unidad1/`) |
+| Avance 2: solución, caso de uso, maqueta y roadmap | Entregado (`docs/unidad1/`) |
+| Avance 3: repositorio, README, bitácora de IA y estructura de datos | En revisión |
+| Base de datos en Supabase, app móvil y bandeja web | Por iniciar |
 
 ### Contexto y problemática detectada
 * **Retraso en la entrega:** Por horario, la entrega debe hacerse a las 20:00 (turno día) y 08:00 (turno noche). Cuando el turno de noche no alcanza, la información se recibe 24 horas después debido a la transcripción manual y los traslados en mina.
