@@ -51,6 +51,14 @@ erDiagram
         string firma_url
     }
 ```
+### Relaciones y cardinalidad
+
+| Relación | Cardinalidad | Se lee | Clave externa |
+|---|---|---|---|
+| USUARIO → CHECKLIST | 1 : N | Un usuario (supervisor) crea muchos checklist; cada checklist tiene un solo autor | `CHECKLIST.id_usuario` |
+| CHECKLIST → DETALLE_TECNICO | 1 : N | Un checklist tiene muchos detalles técnicos; cada detalle pertenece a un solo checklist | `DETALLE_TECNICO.id_checklist` |
+| CHECKLIST → FOTO | 1 : N | Un checklist adjunta cero o más fotos; cada foto pertenece a un solo checklist | `FOTO.id_checklist` |
+| CHECKLIST → FIRMA | 1 : N (máx. 2) | Un checklist lleva hasta dos firmas (entrega y recibe); cada firma pertenece a un solo checklist | `FIRMA.id_checklist` |
 
 ## 2. Campos obligatorios y ejemplos
 
