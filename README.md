@@ -15,10 +15,12 @@ App móvil y web para que el supervisor de turno registre en terreno el checklis
 Supervisores de turno de mantenimiento mecánico (usuarios principales) y programadores de mantenimiento (reciben y revisan los checklist).
 
 **Detalle de involucrados:**
-* **Supervisores de turno (Mecánico):** Registran en el punto de trabajo y gestionan las firmas de entrega y recepción.
-* **Programadores de mantenimiento:** Reciben los documentos, verifican HH y N° OT SAP para realizar la carga correspondiente.
-* **Ingenieros de confiabilidad y Administración:** Se benefician de contar con la información a tiempo y sin pérdida de detalle técnico.
-* **Supervisores Codelco (Mandante):** Validan el formato digital y firman la recepción de los trabajos.
+| Rol | Relación con la solución |
+|---|---|
+| **Supervisores de turno (Mecánico):** | Registran en el punto de trabajo y gestionan las firmas de entrega y recepción.|
+| **Programadores de mantenimiento:** | Reciben los documentos, verifican HH y N° OT SAP para realizar la carga correspondiente.|
+| **Ingenieros de confiabilidad y Administración:** | Se benefician de contar con la información a tiempo y sin pérdida de detalle técnico.|
+| **Supervisores Codelco (Mandante):** | Validan el formato digital y firman la recepción de los trabajos.|
 
 ---
 
