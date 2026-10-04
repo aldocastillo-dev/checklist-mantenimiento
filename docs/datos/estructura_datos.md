@@ -5,7 +5,7 @@
 ```mermaid
 erDiagram
     USUARIO ||--o{ CHECKLIST : "crea"
-    USUARIO ||--o{ FIRMA : "firma"
+    USUARIO |o--o{ FIRMA : "firma"
     CHECKLIST ||--o{ DETALLE_TECNICO : "tiene"
     CHECKLIST ||--o{ FOTO : "adjunta"
     CHECKLIST ||--o{ FIRMA : "lleva"
