@@ -14,9 +14,11 @@ Como supervisor de turno de mantenimiento mecánico, quiero registrar en mi tel�
 Como supervisor de turno, quiero anotar el número SAP del repuesto cuando lo registro, para que el programador pueda generar el pedido sin que yo tenga que acordarme después.
 
 ## HU-03 · Dejar el checklist firmado
-Como supervisor de turno, quiero firmar en la pantalla del teléfono, para no esperar al programador ni llevar el papel para dejar la entrega firmada.
+Como supervisor de turno, quiero firmar en la pantalla del teléfono, para dejar mi entrega firmada sin imprimir ni llevar el papel, y que el programador la lleve al mandante.
 
-## HU-04 · Recibir el checklist y corregir el N° de OT
-Como programador de mantenimiento, quiero recibir el checklist en mi bandeja con su detalle técnico y poder corregir el N° de OT, para llevarlo al mandante y cargarlo en SAP sin pedirle datos al supervisor.
+## HU-04 · Recibir el checklist, corregir el N° de OT y descargarlo
+Como programador de mantenimiento, quiero recibir el checklist en mi bandeja, corregir el N° de OT y descargar el documento, para llevarlo al mandante y que lo firme sin pedirle datos al supervisor.
+
+Mejora futura (fuera de este avance): que el mandante firme digitalmente. Hoy firma en el documento impreso que el programador le lleva, porque incorporarlo a la app implicaría registrarlo como usuario.
 
 Wireframes: ver docs/wireframes/
