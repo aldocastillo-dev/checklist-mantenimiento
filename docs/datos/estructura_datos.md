@@ -5,7 +5,7 @@
 ```mermaid
 erDiagram
     USUARIO ||--o{ CHECKLIST : "crea"
-    USUARIO |o--o{ FIRMA : "firma"
+    USUARIO ||--o{ FIRMA : "firma"
     CHECKLIST ||--o{ DETALLE_TECNICO : "tiene"
     CHECKLIST ||--o{ FOTO : "adjunta"
     CHECKLIST ||--o{ FIRMA : "lleva"
@@ -47,24 +47,25 @@ erDiagram
     FIRMA {
         int id_firma PK
         int id_checklist FK
-        int id_usuario FK "opcional"
-        string nombre_externo "opcional"
-        string rol_firma "entrega o recibe"
+        int id_usuario FK
+        string rol_firma "entrega"
         string firma_url
     }
 ```
 
 Fórmula de horas hombre: (duración en minutos + min_traslado + min_espera_bloqueo) x n_trabajadores / 60.
 
+La firma del mandante no se registra en la app: la hace en el documento impreso que le lleva el programador.
+
 ### Relaciones y cardinalidad
 
 | Relación | Cardinalidad | Se lee | Clave externa |
 |---|---|---|---|
 | USUARIO → CHECKLIST | 1 : N | Un usuario (supervisor) crea muchos checklist; cada checklist tiene un solo autor | `CHECKLIST.id_usuario` |
-| USUARIO → FIRMA | 1 : N | Un usuario puede firmar muchos checklist; cada firma es de un solo usuario o de una persona externa | `FIRMA.id_usuario` |
+| USUARIO → FIRMA | 1 : N | Un usuario (supervisor) firma muchos checklist; cada firma es de un solo usuario | `FIRMA.id_usuario` |
 | CHECKLIST → DETALLE_TECNICO | 1 : N | Un checklist tiene muchos detalles técnicos; cada detalle pertenece a un solo checklist | `DETALLE_TECNICO.id_checklist` |
 | CHECKLIST → FOTO | 1 : N | Un checklist adjunta cero o más fotos; cada foto pertenece a un solo checklist | `FOTO.id_checklist` |
-| CHECKLIST → FIRMA | 1 : N (máx. 2) | Un checklist lleva hasta dos firmas (entrega y recibe); cada firma pertenece a un solo checklist | `FIRMA.id_checklist` |
+| CHECKLIST → FIRMA | 1 : N | Un checklist lleva la firma de quien entrega; cada firma pertenece a un solo checklist | `FIRMA.id_checklist` |
 
 ## 2. Campos obligatorios y ejemplos
 
@@ -73,7 +74,7 @@ Campos obligatorios (los que no pueden quedar vacíos):
 - CHECKLIST: id_checklist, id_usuario, area, equipo, actividad, fecha_turno, turno, hora_inicio, hora_termino, n_trabajadores, horas_hombre, estado. Opcionales: n_ot, min_traslado, min_espera_bloqueo.
 - DETALLE_TECNICO: id_detalle, id_checklist, tipo, descripcion
 - FOTO: id_foto, id_checklist, foto_url
-- FIRMA: id_firma, id_checklist, rol_firma, firma_url. Debe venir id_usuario (si firma un usuario de la app) o nombre_externo (si firma alguien que no lo es).
+- FIRMA: id_firma, id_checklist, id_usuario, rol_firma, firma_url
 
 ### USUARIO
 | id_usuario | nombre | correo | rol |
@@ -91,7 +92,7 @@ Campos obligatorios (los que no pueden quedar vacíos):
 | id_detalle | id_checklist | tipo | descripcion |
 |---|---|---|---|
 | 1 | 101 | causa_falla | Rodamiento trabado |
-| 2 | 101 | repuesto | Polín #152, P/N 36-4471 |
+| 2 | 101 | repuesto | Polín #152, P/N 36-4471, N° SAP 10045872 |
 
 ### FOTO
 | id_foto | id_checklist | foto_url |
@@ -100,7 +101,7 @@ Campos obligatorios (los que no pueden quedar vacíos):
 | 2 | 102 | checklists/102/foto1.jpg |
 
 ### FIRMA
-| id_firma | id_checklist | id_usuario | nombre_externo | rol_firma | firma_url |
-|---|---|---|---|---|---|
-| 1 | 101 | 1 | | entrega | firmas/101_entrega.png |
-| 2 | 101 | | R. Salas | recibe | firmas/101_recibe.png |
+| id_firma | id_checklist | id_usuario | rol_firma | firma_url |
+|---|---|---|---|---|
+| 1 | 101 | 1 | entrega | firmas/101_entrega.png |
+| 2 | 102 | 1 | entrega | firmas/102_entrega.png |
