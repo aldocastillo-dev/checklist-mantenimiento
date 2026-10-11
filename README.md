@@ -56,3 +56,6 @@ Etapa de diseño: propuesta de valor, caso de uso, maqueta, roadmap y estructura
 
 ## Quiénes la desarrollan
 Equipo 1: Aldo Castillo, Felipe Narbona, Sebastián Narbona, Bastian Garay.
+
+## Historias y wireframes
+Historias de usuario: docs/historias.md. Wireframes: docs/wireframes/
