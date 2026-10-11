@@ -22,4 +22,5 @@ Como programador de mantenimiento, quiero recibir el checklist en mi bandeja, co
 Mejora futura (fuera de este avance): que el mandante firme digitalmente. Hoy firma en el documento impreso que el programador le lleva, porque incorporarlo a la app implicaría registrarlo como usuario.
 
 Wireframes: ver docs/wireframes/
+
 Respuestas completas en docs/conversacion-supervisor.md.
