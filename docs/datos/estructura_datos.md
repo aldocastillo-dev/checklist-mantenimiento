@@ -57,6 +57,8 @@ Fórmula de horas hombre: (duración en minutos + min_traslado + min_espera_bloq
 
 La firma del mandante no se registra en la app: la hace en el documento impreso que le lleva el programador.
 
+La tabla FOTO queda fuera del prototipo del Avance 5: ninguna historia de usuario pide fotografías. Se retoma solo si se agrega una historia que la justifique.
+
 ### Relaciones y cardinalidad
 
 | Relación | Cardinalidad | Se lee | Clave externa |
