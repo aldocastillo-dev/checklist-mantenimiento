@@ -1,6 +1,6 @@
 # Prototipo navegable · ReporteMtto
 
-Enlace: PENDIENTE: pegar aquí el enlace de Vercel (debe abrirse sin iniciar sesión; probar en ventana de incógnito)
+Enlace: https://checklist-mantenimiento-src.vercel.app
 
 El prototipo está en [`src/`](../src/) (HTML, CSS y JavaScript, sin librerías externas). Las cinco pantallas son las del wireframe del Avance 4 (`docs/wireframes/`) y sus recuadros siguen el «Check list entrega trabajos de mantenimiento» que ya autorizó el mandante: no modificamos el checklist físico, lo pasamos al teléfono. Un reporte registra una actividad.
 
