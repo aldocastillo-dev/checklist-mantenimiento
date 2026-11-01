@@ -4,14 +4,14 @@ Conversación: supervisor de mantenimiento con 3 años haciendo checklist de ent
 
 Flujo principal: el supervisor de turno registra, firma y entrega el checklist de una actividad de mantenimiento antes de que termine su turno. Historia principal: HU-01
 
-## HU-01 · Registrar el checklist con su detalle técnico
-Como supervisor de turno de mantenimiento mecánico, quiero registrar en mi teléfono el área, el equipo, la actividad y el detalle técnico (causa de falla, repuesto, medición y pendiente), para entregar el checklist antes de que termine el turno y no al día siguiente.
+## HU-01 · Registrar el checklist con su detalle realizado
+Como supervisor de turno de mantenimiento mecánico, quiero llenar en mi teléfono los mismos recuadros del checklist oficial (área, equipo, detalle realizado, horas y participantes), pegando el texto que ya preparé en las notas del teléfono, para entregar el checklist antes de que termine el turno y no al día siguiente.
 
 - Escenario principal. Dado que terminé la actividad y tengo todos los campos obligatorios completos, cuando toco "Guardar y enviar", entonces veo el mensaje "Checklist enviado", el estado "enviado" y mis horas hombre ya calculadas.
 - Escenario alternativo. Dado que estoy sin cobertura, cuando toco "Guardar y enviar", entonces veo el estado "pendiente" con el aviso "Se enviará al recuperar señal" y puedo abrir un checklist nuevo.
 
-## HU-02 · Registrar el repuesto con su número SAP
-Como supervisor de turno, quiero anotar el número SAP del repuesto cuando lo registro, para que el programador pueda generar el pedido sin que yo tenga que acordarme después.
+## HU-02 · Anotar el número SAP del repuesto en las observaciones
+Como supervisor de turno, quiero anotar en las observaciones lo detectado durante la recepción y, si hace falta, el número SAP de un repuesto, para que el programador pueda generar el pedido sin que yo tenga que acordarme después. El N° SAP del repuesto no tiene campo propio: de momento va dentro de las observaciones.
 
 ## HU-03 · Dejar el checklist firmado
 Como supervisor de turno, quiero firmar en la pantalla del teléfono, para dejar mi entrega firmada sin imprimir ni llevar el papel, y que el programador la lleve al mandante.

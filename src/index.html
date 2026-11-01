@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ReporteMtto · Prototipo</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Controles del prototipo: simulan lo que en la app real vendría del inicio de sesión y de la red -->
+  <section id="protobar" aria-label="Controles del prototipo">
+    <p class="proto-title">Prototipo · controles de simulación</p>
+    <div class="proto-row">
+      <label for="ctl-rol">Vista</label>
+      <select id="ctl-rol">
+        <option value="supervisor">Supervisor</option>
+        <option value="capataz">Capataz</option>
+        <option value="programador">Programador</option>
+      </select>
+    </div>
+    <div class="proto-row">
+      <label for="ctl-senal">Señal</label>
+      <select id="ctl-senal">
+        <option value="con">Con señal</option>
+        <option value="sin">Sin señal</option>
+      </select>
+    </div>
+    <div class="proto-row">
+      <label for="ctl-bandeja">Bandeja</label>
+      <select id="ctl-bandeja">
+        <option value="datos">Con datos de ejemplo</option>
+        <option value="vacia">Vacía</option>
+      </select>
+    </div>
+  </section>
+
+  <main id="app" tabindex="-1"></main>
+
+  <p id="toast" role="status" aria-live="polite"></p>
+
+  <dialog id="doc-dialog" aria-labelledby="doc-title"></dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

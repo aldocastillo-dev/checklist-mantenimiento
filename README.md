@@ -1,10 +1,10 @@
 # Reporte digital del checklist de entrega de trabajos de mantenimiento
 
 ## Qué es la solución
-App móvil y web para que el supervisor de turno registre en terreno el checklist de entrega de trabajos, con detalle técnico, firma en pantalla y envío automático al programador en el formato oficial.
+App móvil y web para que el supervisor de turno registre en terreno el checklist de entrega de trabajos, con su detalle realizado, firma en pantalla y envío automático al programador en el formato oficial.
 
 **Principales características:**
-* **Registro en terreno:** Smartphone con campos precargados y guiados según el tipo de actividad (mediciones, repuestos utilizados, causas de falla y pendientes).
+* **Registro en terreno:** Smartphone con los mismos recuadros del checklist oficial (área, equipo, detalle realizado, horas y participantes), con listas de opciones y el texto pegable desde las notas del teléfono; los repuestos y lo detectado se anotan en observaciones.
 * **Modo sin conexión (Offline):** Funciona en interior mina, almacena localmente y sincroniza de forma automática al recuperar señal.
 * **Generación de documentos:** Crea automáticamente el PDF en formato oficial con firmas en pantalla listo para imprimir o adjuntar.
 * **Bandeja web:** Permite al programador consultar, filtrar y descargar los checklists del turno.
@@ -25,7 +25,7 @@ Supervisores de turno de mantenimiento mecánico (usuarios principales) y progra
 ---
 
 ## Cómo se instala y se ejecuta
-Aún no hay nada que ejecutar. Esta sección se completará cuando exista una primera versión.
+Hay un prototipo navegable (HTML, CSS y JavaScript, sin instalación) en `src/`. Para verlo: abrir el enlace de `docs/prototipo.md`, o descargar el repositorio y abrir `src/index.html` en el navegador. Aún no hay servidor ni base de datos: guardar, enviar y descargar están simulados.
 
 ---
 
@@ -35,8 +35,10 @@ Etapa de diseño: propuesta de valor, caso de uso, maqueta, roadmap y estructura
 |---|---|
 | Avance 1: propuesta de valor, alcance y usuarios | Entregado (`docs/unidad1/`) |
 | Avance 2: solución, caso de uso, maqueta y roadmap | Entregado (`docs/unidad1/`) |
-| Avance 3: repositorio, README, bitácora de IA y estructura de datos | En revisión |
-| Base de datos en Supabase, app móvil y bandeja web | Por iniciar |
+| Avance 3: repositorio, README, bitácora de IA y estructura de datos | Entregado |
+| Avance 4: historias de usuario y wireframes | Entregado (`docs/historias.md`, `docs/wireframes/`) |
+| Avance 5: prototipo navegable y análisis ético | En revisión (`docs/prototipo.md`, `docs/etica.md`) |
+| Base de datos en Supabase, app móvil y bandeja web | Por iniciar (el prototipo simula esta parte) |
 
 ### Contexto y problemática detectada
 * **Retraso en la entrega:** Por horario, la entrega debe hacerse a las 20:00 (turno día) y 08:00 (turno noche). Cuando el turno de noche no alcanza, la información se recibe 24 horas después debido a la transcripción manual y los traslados en mina.
@@ -59,3 +61,6 @@ Equipo 1: Aldo Castillo, Felipe Narbona, Sebastián Narbona, Bastian Garay.
 
 ## Historias y wireframes
 Historias de usuario: docs/historias.md. Wireframes: docs/wireframes/
+
+## Prototipo y análisis ético
+Prototipo navegable: [docs/prototipo.md](docs/prototipo.md) (incluye el enlace, el mapa de navegación y el registro de decisiones). Análisis ético: [docs/etica.md](docs/etica.md).
