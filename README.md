@@ -1,10 +1,10 @@
 # Reporte digital del checklist de entrega de trabajos de mantenimiento
 
 ## Qué es la solución
-App móvil y web para que el supervisor de turno registre en terreno el checklist de entrega de trabajos, con detalle técnico, firma en pantalla y envío automático al programador en el formato oficial.
+App móvil y web para que el supervisor de turno registre en terreno el checklist de entrega de trabajos, con su detalle realizado, firma en pantalla y envío automático al programador en el formato oficial.
 
 **Principales características:**
-* **Registro en terreno:** Smartphone con campos precargados y guiados según el tipo de actividad (mediciones, repuestos utilizados, causas de falla y pendientes).
+* **Registro en terreno:** Smartphone con los mismos recuadros del checklist oficial (área, equipo, detalle realizado, horas y participantes), con listas de opciones y el texto pegable desde las notas del teléfono; los repuestos y lo detectado se anotan en observaciones.
 * **Modo sin conexión (Offline):** Funciona en interior mina, almacena localmente y sincroniza de forma automática al recuperar señal.
 * **Generación de documentos:** Crea automáticamente el PDF en formato oficial con firmas en pantalla listo para imprimir o adjuntar.
 * **Bandeja web:** Permite al programador consultar, filtrar y descargar los checklists del turno.

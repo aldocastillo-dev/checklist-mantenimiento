@@ -1,19 +1,21 @@
 # Estructura de datos preliminar
 
+La estructura sigue los recuadros del «Check list entrega trabajos de mantenimiento», el formato que ya autorizó el mandante. Un checklist registra una actividad.
+
 ## 1. Diagrama
 
 ```mermaid
 erDiagram
     USUARIO ||--o{ CHECKLIST : "crea"
     USUARIO ||--o{ FIRMA : "firma"
-    CHECKLIST ||--o{ DETALLE_TECNICO : "tiene"
-    CHECKLIST ||--o{ FOTO : "adjunta"
     CHECKLIST ||--o{ FIRMA : "lleva"
 
     USUARIO {
         int id_usuario PK
         string nombre
         string correo
+        string cargo "Supervisor o Capataz"
+        string empresa "ej: Sigma S.A."
         string rol "supervisor o programador"
     }
     CHECKLIST {
@@ -21,28 +23,20 @@ erDiagram
         int id_usuario FK
         string area
         string equipo
-        string actividad
+        string equipo_actividad
         date fecha_turno
         string turno
         datetime hora_inicio
         datetime hora_termino
-        string n_ot "opcional"
-        int n_trabajadores
+        string n_ot "opcional, 9 digitos"
+        string detalle_realizado
+        string observaciones "opcional"
+        int duracion_min "calculado"
         int min_traslado "opcional"
         int min_espera_bloqueo "opcional"
-        float horas_hombre
+        int n_trabajadores
+        float horas_hombre "calculado"
         string estado "pendiente o enviado"
-    }
-    DETALLE_TECNICO {
-        int id_detalle PK
-        int id_checklist FK
-        string tipo "causa_falla, repuesto, medicion, pendiente"
-        string descripcion
-    }
-    FOTO {
-        int id_foto PK
-        int id_checklist FK
-        string foto_url
     }
     FIRMA {
         int id_firma PK
@@ -53,54 +47,67 @@ erDiagram
     }
 ```
 
-Fórmula de horas hombre: (duración en minutos + min_traslado + min_espera_bloqueo) x n_trabajadores / 60.
+Fórmula de horas hombre: (duración en minutos + min_traslado + min_espera_bloqueo) x n_trabajadores / 60. La duración sale de la hora de inicio y la hora de término.
 
-La firma del mandante no se registra en la app: la hace en el documento impreso que le lleva el programador.
+Cómo se corresponde con la hoja oficial:
 
-La tabla FOTO queda fuera del prototipo del Avance 5: ninguna historia de usuario pide fotografías. Se retoma solo si se agrega una historia que la justifique.
+| Recuadro de la hoja | Campo |
+|---|---|
+| Área | `CHECKLIST.area` |
+| Equipo (encabezado) | `CHECKLIST.equipo` |
+| Fecha turno | `CHECKLIST.fecha_turno` y `CHECKLIST.turno` |
+| Nombre quien entrega, Cargo, Empresa | `USUARIO.nombre`, `USUARIO.cargo`, `USUARIO.empresa` (vienen del perfil, no se escriben en cada checklist) |
+| Firma de quien entrega | `FIRMA.firma_url` con `rol_firma` = entrega |
+| Equipo (fila de la actividad) | `CHECKLIST.equipo_actividad`: puede ser un sub equipo distinto del equipo del encabezado |
+| Detalle realizado | `CHECKLIST.detalle_realizado` |
+| Hora inicio y hora término | `CHECKLIST.hora_inicio` y `CHECKLIST.hora_termino` |
+| N° OT SAP | `CHECKLIST.n_ot` |
+| Observaciones detectadas durante recepción de actividades | `CHECKLIST.observaciones` |
+| Duración actividad, tiempo traslado, tiempo espera bloqueo, N° trabajadores | `duracion_min`, `min_traslado`, `min_espera_bloqueo`, `n_trabajadores` |
+| Nombre, cargo, empresa y firma de quien recibe | No se registra en la app: lo completa el mandante en el documento impreso |
+
+La firma de quien recibe no se registra en la app: la hace en el documento impreso que le lleva el programador.
+
+El N° SAP de un repuesto no es un campo: de momento se anota dentro de `observaciones`.
+
+La tabla FOTO queda fuera del prototipo del Avance 5: la hoja oficial no tiene recuadro para fotografías y ninguna historia de usuario las pide. Se retoma solo si se agrega una historia que la justifique.
+
+### Listas de opciones
+
+- **Área:** Superficie, Chancado, Transporte intermedio, Transporte principal u Otro (se escribe a mano).
+- **Equipo:** según el área, o Otro (se escribe a mano).
+  - Chancado y Transporte intermedio: Chancador, Apron Primario, Correa de Finos, Apron Secundario, Correa Sacrificio y Correa Intermedia, cada uno en las líneas L1, L2 y L3; más Correa Colectora Norte y Correa Reversible. Todavía no se define qué equipo va en cada una de las dos áreas, así que ambas muestran la misma lista.
+  - Transporte principal: Alimentador Norte, Alimentador Sur, Correa Nivel 1, Correa Transferencia, Correa Principal 1, Correa Principal 2, Correa Overland, Alimentador 1, Alimentador 2, Correa Pila Mina, Correa Complementaria y Correa 442.
+  - Superficie: sin lista por ahora, se escribe a mano.
+- **Turno:** día o noche (automático).
+- **Cargo:** Supervisor o Capataz.
 
 ### Relaciones y cardinalidad
 
 | Relación | Cardinalidad | Se lee | Clave externa |
 |---|---|---|---|
-| USUARIO → CHECKLIST | 1 : N | Un usuario (supervisor) crea muchos checklist; cada checklist tiene un solo autor | `CHECKLIST.id_usuario` |
-| USUARIO → FIRMA | 1 : N | Un usuario (supervisor) firma muchos checklist; cada firma es de un solo usuario | `FIRMA.id_usuario` |
-| CHECKLIST → DETALLE_TECNICO | 1 : N | Un checklist tiene muchos detalles técnicos; cada detalle pertenece a un solo checklist | `DETALLE_TECNICO.id_checklist` |
-| CHECKLIST → FOTO | 1 : N | Un checklist adjunta cero o más fotos; cada foto pertenece a un solo checklist | `FOTO.id_checklist` |
+| USUARIO → CHECKLIST | 1 : N | Un usuario (supervisor o capataz) crea muchos checklist; cada checklist tiene un solo autor | `CHECKLIST.id_usuario` |
+| USUARIO → FIRMA | 1 : N | Un usuario firma muchos checklist; cada firma es de un solo usuario | `FIRMA.id_usuario` |
 | CHECKLIST → FIRMA | 1 : N | Un checklist lleva la firma de quien entrega; cada firma pertenece a un solo checklist | `FIRMA.id_checklist` |
 
 ## 2. Campos obligatorios y ejemplos
 
 Campos obligatorios (los que no pueden quedar vacíos):
-- USUARIO: id_usuario, nombre, correo, rol
-- CHECKLIST: id_checklist, id_usuario, area, equipo, actividad, fecha_turno, turno, hora_inicio, hora_termino, n_trabajadores, horas_hombre, estado. Opcionales: n_ot, min_traslado, min_espera_bloqueo.
-- DETALLE_TECNICO: id_detalle, id_checklist, tipo, descripcion
-- FOTO: id_foto, id_checklist, foto_url
+- USUARIO: id_usuario, nombre, correo, cargo, empresa, rol
+- CHECKLIST: id_checklist, id_usuario, area, equipo, equipo_actividad, fecha_turno, turno, hora_inicio, hora_termino, detalle_realizado, duracion_min, n_trabajadores, horas_hombre, estado. Opcionales: n_ot, observaciones, min_traslado, min_espera_bloqueo (si no hubo, vale 0).
 - FIRMA: id_firma, id_checklist, id_usuario, rol_firma, firma_url
 
 ### USUARIO
-| id_usuario | nombre | correo | rol |
-|---|---|---|---|
-| 1 | Juan Pérez | jperez@ejemplo.cl | supervisor |
-| 2 | Marta Soto | msoto@ejemplo.cl | programador |
+| id_usuario | nombre | correo | cargo | empresa | rol |
+|---|---|---|---|---|---|
+| 1 | Juan Pérez | jperez@ejemplo.cl | Supervisor | Sigma S.A. | supervisor |
+| 2 | Marta Soto | msoto@ejemplo.cl | Programador de mantenimiento | Sigma S.A. | programador |
 
 ### CHECKLIST
-| id_checklist | id_usuario | area | equipo | actividad | fecha_turno | turno | hora_inicio | hora_termino | n_ot | n_trabajadores | min_traslado | min_espera_bloqueo | horas_hombre | estado |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 101 | 1 | Chancado | Correa CV-102 | Cambio de polín de carga | 2026-09-25 | noche | 2026-09-25 20:15 | 2026-09-25 22:40 | 4500231987 | 3 | 70 | 35 | 12.5 | enviado |
-| 102 | 1 | Hidráulica | Unidad UH-04 | Cambio de filtro de retorno | 2026-09-26 | día | 2026-09-26 09:00 | 2026-09-26 11:30 | | 2 | 30 | 0 | 6.0 | pendiente |
-
-### DETALLE_TECNICO
-| id_detalle | id_checklist | tipo | descripcion |
-|---|---|---|---|
-| 1 | 101 | causa_falla | Rodamiento trabado |
-| 2 | 101 | repuesto | Polín #152, P/N 36-4471, N° SAP 10045872 |
-
-### FOTO
-| id_foto | id_checklist | foto_url |
-|---|---|---|
-| 1 | 101 | checklists/101/foto1.jpg |
-| 2 | 102 | checklists/102/foto1.jpg |
+| id_checklist | id_usuario | area | equipo | equipo_actividad | fecha_turno | turno | hora_inicio | hora_termino | n_ot | detalle_realizado | observaciones | duracion_min | min_traslado | min_espera_bloqueo | n_trabajadores | horas_hombre | estado |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 101 | 1 | Transporte intermedio | Correa Intermedia L1 | Polea de cola de Correa Intermedia L1 | 2026-09-25 | noche | 2026-09-25 20:15 | 2026-09-25 22:40 | 111254880 | Se cambian 3 polines de carga en el tramo de descarga y se revisa la alineación de la correa. | | 145 | 70 | 35 | 3 | 12.5 | enviado |
+| 102 | 1 | Transporte principal | Alimentador Norte | Buzón de carga de Alimentador Norte | 2026-09-26 | día | 2026-09-26 09:00 | 2026-09-26 11:30 | | Se reemplaza el faldón lateral del buzón de carga y se limpia el material acumulado. | | 150 | 30 | 0 | 2 | 6.0 | pendiente |
 
 ### FIRMA
 | id_firma | id_checklist | id_usuario | rol_firma | firma_url |

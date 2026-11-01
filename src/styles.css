@@ -246,3 +246,12 @@ dialog .acciones { margin-top: calc(var(--u) * 2); }
 
 /* Texto de ayuda dentro de los campos: contraste sobre 5:1 */
 ::placeholder { color: #6B6B6B; opacity: 1; }
+
+/* Documento simulado (réplica de la hoja oficial) */
+.doc-sub { font-weight: 700; margin-top: calc(var(--u) * 2); margin-bottom: var(--u); }
+.doc-caja { border: 1px solid var(--borde); min-height: 48px; padding: var(--u); }
+dialog { max-height: 90vh; overflow-y: auto; }
+.doc-tabla thead th { background: var(--apoyo); }
+
+/* El atributo hidden debe ganar a cualquier display de las clases */
+[hidden] { display: none !important; }
