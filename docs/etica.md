@@ -22,8 +22,8 @@ Una fila por cada campo del formulario del prototipo, que sigue los recuadros de
 | `area` (P1) | No | Saber dónde se hizo el trabajo (HU-01) | Autor, programador, equipo | 2 años desde la fecha del turno |
 | `equipo` (P1) | No | Identificar el equipo intervenido (HU-01) | Autor, programador, equipo | 2 años desde la fecha del turno |
 | `equipo_actividad` (P1) | No | Identificar el equipo o sub equipo donde se hizo la actividad (HU-01) | Autor, programador, equipo | 2 años desde la fecha del turno |
-| `fecha_turno` (P1, automático) | Indirecto: junto al autor dice cuándo trabajó | Ubicar el checklist en el turno correcto (HU-01, HU-04) | Autor, programador, equipo | 2 años desde la fecha del turno |
-| `turno` (P1, automático) | Indirecto, igual que la fecha | Filtrar la bandeja por turno (HU-04) | Autor, programador, equipo | 2 años desde la fecha del turno |
+| `fecha_turno` (P1, preseleccionada y editable) | Indirecto: junto al autor dice cuándo trabajó | Ubicar el checklist en el turno correcto (HU-01, HU-04) | Autor, programador, equipo | 2 años desde la fecha del turno |
+| `turno` (P1, preseleccionado y editable) | Indirecto, igual que la fecha | Filtrar la bandeja por turno (HU-04) | Autor, programador, equipo | 2 años desde la fecha del turno |
 | `hora_inicio` (P1) | Indirecto | Calcular la duración y las horas hombre (HU-01) | Autor, programador, equipo | 2 años desde la fecha del turno |
 | `hora_termino` (P1) | Indirecto | Calcular la duración y las horas hombre (HU-01) | Autor, programador, equipo | 2 años desde la fecha del turno |
 | `n_ot` (P1 y P5) | No | Asociar el checklist a la orden de trabajo (9 dígitos); el programador lo completa o corrige (HU-01, HU-04) | Autor, programador, equipo | 2 años desde la fecha del turno |

@@ -69,7 +69,7 @@
       area: '', areaOtra: '', equipo: '', equipoOtro: '', equipoAct: '',
       inicio: '', termino: '', n_ot: '',
       detalle: '', obs: '',
-      n_trabajadores: 3, min_traslado: '0', min_espera_bloqueo: '0',
+      n_trabajadores: 3, min_traslado: '0', min_espera_bloqueo: '0', fecha: hoy(), turno: turnoAhora(),
       p1Ok: false, p2Ok: false
     };
   }
@@ -236,8 +236,14 @@
           '<input type="text" id="equipoOtro" placeholder="Ej: Correa Nueva" value="' + esc(d.equipoOtro) + '"></div>' +
           campoErr('equipo') + '</div>' +
 
-        '<div class="campo"><span class="etiqueta">Fecha y turno (automático)</span>' +
-          '<p class="fecha-auto">' + hoy() + ' · turno ' + turnoAhora() + '</p></div>' +
+        '<div class="fila-2">' +
+          '<div class="campo"><label for="fecha">Fecha del turno *</label>' +
+            '<input type="date" id="fecha" value="' + esc(d.fecha) + '"></div>' +
+          '<div class="campo"><label for="turno">Turno *</label>' +
+            '<select id="turno"><option value="día"' + (d.turno === 'día' ? ' selected' : '') + '>Día</option>' +
+            '<option value="noche"' + (d.turno === 'noche' ? ' selected' : '') + '>Noche</option></select></div>' +
+        '</div>' +
+        '<p class="ayuda">Fecha y turno vienen preseleccionados según la hora del teléfono. Cámbialos si reportas otro turno.</p>' +
 
         '<div class="campo"><label for="equipoAct">Equipo de la actividad *</label>' +
           '<input type="text" id="equipoAct" aria-describedby="ayuda-eqact err-equipoAct" placeholder="Ej: Polea de cola de Correa Reversible" value="' + esc(d.equipoAct) + '">' +
@@ -264,6 +270,8 @@
       d.equipo = $('#equipo').value;
       d.equipoOtro = $('#equipoOtro').value;
       d.equipoAct = $('#equipoAct').value;
+      d.fecha = $('#fecha').value || d.fecha;
+      d.turno = $('#turno').value;
       d.inicio = $('#inicio').value;
       d.termino = $('#termino').value;
       d.n_ot = $('#n_ot').value.trim();
@@ -445,7 +453,7 @@
         var d = S.draft;
         var reg = {
           id: S.siguienteId++, area: areaFinal(d), equipo: equipoFinal(d), equipoAct: d.equipoAct.trim(),
-          detalle: d.detalle.trim(), obs: d.obs.trim(), fecha: hoy(), turno: turnoAhora(),
+          detalle: d.detalle.trim(), obs: d.obs.trim(), fecha: d.fecha, turno: d.turno,
           inicio: d.inicio, termino: d.termino, n_ot: d.n_ot,
           traslado: parseInt(d.min_traslado, 10), espera: parseInt(d.min_espera_bloqueo, 10),
           trab: d.n_trabajadores, hh: horasHombre(d), cargo: S.cargo,

@@ -79,7 +79,7 @@ La tabla FOTO queda fuera del prototipo del Avance 5: la hoja oficial no tiene r
   - Chancado y Transporte intermedio: Chancador, Apron Primario, Correa de Finos, Apron Secundario, Correa Sacrificio y Correa Intermedia, cada uno en las líneas L1, L2 y L3; más Correa Colectora Norte y Correa Reversible. Todavía no se define qué equipo va en cada una de las dos áreas, así que ambas muestran la misma lista.
   - Transporte principal: Alimentador Norte, Alimentador Sur, Correa Nivel 1, Correa Transferencia, Correa Principal 1, Correa Principal 2, Correa Overland, Alimentador 1, Alimentador 2, Correa Pila Mina, Correa Complementaria y Correa 442.
   - Superficie: sin lista por ahora, se escribe a mano.
-- **Turno:** día o noche (automático).
+- **Turno:** día o noche; se preselecciona según la hora, pero la persona puede cambiarlo.
 - **Cargo:** Supervisor o Capataz.
 
 ### Relaciones y cardinalidad

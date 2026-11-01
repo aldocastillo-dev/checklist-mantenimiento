@@ -65,7 +65,7 @@ Además se puede **cancelar** en P1 (con confirmación) y la bandeja muestra un 
 
 | Pantalla | Campos (como en la hoja oficial) |
 |---|---|
-| P1 · Nuevo checklist | Área (Superficie, Chancado, Transporte intermedio, Transporte principal u Otro), Equipo (lista según el área u Otro), fecha y turno (automáticos), Equipo de la actividad (texto), Hora inicio, Hora término, N° OT SAP (opcional, 9 dígitos) |
+| P1 · Nuevo checklist | Área (Superficie, Chancado, Transporte intermedio, Transporte principal u Otro), Equipo (lista según el área u Otro), Fecha del turno y Turno (Día o Noche; vienen preseleccionados según la hora del teléfono y se pueden cambiar), Equipo de la actividad (texto), Hora inicio, Hora término, N° OT SAP (opcional, 9 dígitos) |
 | P2 · Detalle realizado y horas | Detalle realizado (texto, se puede pegar desde las notas del teléfono), Observaciones detectadas durante recepción de actividades (opcional; ahí va el N° SAP de un repuesto si hace falta), Duración (calculada), Tiempo traslado, Tiempo espera bloqueo, N° trabajadores, Horas hombre (calculadas) |
 | P3 · Firma | Nombre, cargo (Supervisor o Capataz) y empresa de quien entrega (del perfil) y firma con el dedo. La firma de quien recibe la hace el mandante en el documento impreso |
 | P4 · Confirmación | Estado (enviado o pendiente) y horas hombre |
@@ -77,7 +77,7 @@ Las cuatro decisiones de diseño del formulario:
 - **Solo campos justificados.** Cada campo existe en la hoja oficial, viene de una historia y está en `docs/datos/estructura_datos.md`. No hay campos de foto, voz, causa de falla ni repuesto (ver `docs/etica.md`, integración).
 - **Etiqueta siempre visible** sobre cada campo; el texto de ayuda dentro del campo solo da un ejemplo.
 - **Error junto al campo**, con ⚠ y un mensaje que dice cómo corregir (por ejemplo: «El N° de OT tiene 9 dígitos, por ejemplo 111254880. Corrígelo o déjalo vacío.»).
-- **Opciones en vez de texto libre:** área y equipo son listas (con «Otro» para escribir a mano); las horas se marcan con «Ahora»; fecha y turno son automáticos; los trabajadores se ajustan con + y −; la duración y las horas hombre se calculan solas.
+- **Opciones en vez de texto libre:** área y equipo son listas (con «Otro» para escribir a mano); las horas se marcan con «Ahora»; fecha y turno vienen preseleccionados y se pueden cambiar si se reporta otro turno; los trabajadores se ajustan con + y −; la duración y las horas hombre se calculan solas.
 
 | Estado | Dónde se ve |
 |---|---|
@@ -92,7 +92,7 @@ En la bandeja y en P4 el estado se expresa con texto y color («Enviado ✓» y 
 
 | Pantalla | Historia | Criterio que verifica | Simulado | Funcional |
 |---|---|---|---|---|
-| P1 · Nuevo checklist | HU-01 | Escenario principal: están los campos obligatorios; si falta alguno se marca antes de seguir | Listas de áreas y equipos (catálogo de ejemplo, falta confirmar la lista de Chancado frente a Transporte intermedio y la de Superficie); fecha y turno toman la hora del teléfono | Validación de campos obligatorios y del N° de OT de 9 dígitos; botón «Ahora»; «Cancelar» con confirmación; navegación |
+| P1 · Nuevo checklist | HU-01 | Escenario principal: están los campos obligatorios; si falta alguno se marca antes de seguir | Listas de áreas y equipos (catálogo de ejemplo, falta confirmar la lista de Chancado frente a Transporte intermedio y la de Superficie); fecha y turno se preseleccionan con la hora del teléfono | Validación de campos obligatorios y del N° de OT de 9 dígitos; botón «Ahora»; «Cancelar» con confirmación; navegación |
 | P2 · Detalle realizado y horas | HU-01 y HU-02 | HU-01: la persona ve sus horas hombre calculadas antes de enviar. HU-02: las observaciones aceptan el N° SAP del repuesto | El texto pegado desde las notas (se escribe en el campo) | Cálculo de horas hombre en vivo (fórmula de `estructura_datos.md`; con los datos reales da 12,5 y 6,0); validación de minutos y del detalle |
 | P3 · Firma | HU-03 | El supervisor ve su firma dibujada en la pantalla antes de enviar; el mandante firma después, en papel | El nombre, cargo y empresa (datos de ejemplo del perfil) y el envío (espera de 1,2 segundos, sin servidor) | Firma con el dedo o el mouse, «Limpiar», error si falta la firma, estado «Enviando…» |
 | P4 · Confirmación | HU-01 | Principal: «Checklist enviado», estado «enviado» y horas hombre. Alternativo: estado «pendiente» con «Se enviará al recuperar señal» | Que el envío llegue al servidor | Los dos resultados según el control «Señal»; reenvío automático al volver la señal; «Nuevo checklist» |

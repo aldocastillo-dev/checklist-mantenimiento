@@ -100,7 +100,7 @@ p { margin: 0; }
 .campo label, .campo .etiqueta { font-weight: 700; }
 .campo .opc { font-weight: 400; }
 
-input[type="text"], input[type="tel"], input[type="time"], input[type="number"], select, textarea {
+input[type="text"], input[type="tel"], input[type="time"], input[type="date"], input[type="number"], select, textarea {
   min-height: 48px;
   font-size: 16px;
   padding: var(--u) calc(var(--u) * 1.5);
