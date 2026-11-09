@@ -64,3 +64,6 @@ Historias de usuario: docs/historias.md. Wireframes: docs/wireframes/
 
 ## Prototipo y análisis ético
 Prototipo navegable: [docs/prototipo.md](docs/prototipo.md) (incluye el enlace, el mapa de navegación y el registro de decisiones). Análisis ético: [docs/etica.md](docs/etica.md).
+
+## Prueba de usuarios
+Diseño de la prueba: [docs/prueba-usuarios.md](docs/prueba-usuarios.md). Pauta que se lee en cada sesión: [docs/pauta-validacion.md](docs/pauta-validacion.md).
