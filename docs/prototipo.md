@@ -8,6 +8,7 @@ El prototipo está en [`src/`](../src/) (HTML, CSS y JavaScript, sin librerías 
 - **Vista:** Supervisor o Capataz (empiezan en P1; solo cambia el cargo que aparece en la firma) o Programador (empieza en P5).
 - **Señal:** «Sin señal» activa el camino alternativo de la historia principal; al volver a «Con señal» los checklist pendientes se envían.
 - **Bandeja:** «Vacía» muestra el estado vacío de P5.
+- **Envío:** desde el Avance 7, con señal el botón «Guardar y enviar» guarda el checklist de verdad (ver `docs/arquitectura.md`). «Con N° de OT inválido (PoC)» manda un dato que el servidor rechaza.
 
 Los datos del usuario (por ejemplo «Juan Pérez», «Sigma S.A.») son de ejemplo. En la app real el nombre, el cargo y la empresa vienen del perfil de quien inicia sesión, no se escriben en cada checklist.
 

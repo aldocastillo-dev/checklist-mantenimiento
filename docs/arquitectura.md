@@ -1,0 +1,79 @@
+# Arquitectura y PoC · ReporteMtto
+
+La prueba de concepto (PoC) recorre de punta a punta **una sola acción**: el supervisor entrega el checklist de una actividad. El dato viaja desde el teléfono hasta una base de datos real, el servidor lo valida y la persona recibe un folio. Todo lo demás del prototipo sigue simulado.
+
+## Diagrama de componentes
+
+```mermaid
+flowchart LR
+    P([Supervisor o capataz<br/>navegador del celular])
+    G[GitHub<br/>rama main]
+    V[Vercel<br/>publicación]
+    F[Frontend<br/>src/index.html y app.js]
+    B[Backend<br/>función src/api/checklists.js]
+    D[(Supabase<br/>tabla checklists)]
+
+    G -- "despliegue automático" --> V
+    P -- "1. abre la dirección pública" --> V
+    V -- "2. entrega las pantallas" --> F
+    F -- "3. POST /api/checklists (JSON)" --> B
+    B -- "4. INSERT por HTTPS con la clave secreta" --> D
+    D -- "5. fila guardada con su folio" --> B
+    B -- "6. 201 con folio, 400 con errores o 503" --> F
+```
+
+| Pieza | Qué hace en nuestra solución | Con qué está hecha | Con quién se comunica |
+|---|---|---|---|
+| Frontend | Muestra las cinco pantallas del checklist, valida los campos antes de enviar y, al tocar «Guardar y enviar», manda los datos al backend. Muestra el folio si se guardó, el error si el servidor lo rechazó, o «Pendiente de envío» si no hay conexión. | HTML, CSS y JavaScript sin librerías (`src/`) | Backend, por `POST /api/checklists` |
+| Backend | Recibe el checklist, lo valida de nuevo (el servidor es el que manda: ignora los campos que no están en su lista, rechaza datos inválidos y calcula él mismo la duración y las horas hombre), lo guarda y responde con el folio o con el error. | Función de Node.js (`src/api/checklists.js`, `_validar.js`, `_db.js`), sin librerías | Frontend y Supabase |
+| Base de datos | Guarda cada checklist entregado como una fila de la tabla `checklists`, con las mismas reglas como segunda defensa (el N° de OT con 9 dígitos, turno día o noche, minutos sin valores negativos). Nadie puede leer ni escribir desde el navegador: solo entra el servidor con su clave secreta. | Supabase (PostgreSQL), esquema en `supabase/schema.sql` | Backend, por su API REST |
+| Publicación | Pone el sitio y la función en una dirección pública, sin iniciar sesión, y guarda las claves como variables de entorno. | Vercel, con la carpeta raíz `src` | GitHub (recibe el código) y las personas (abren la dirección) |
+| Repositorio | Guarda el código y la documentación; la rama `main` es lo que se publica y lo que se entrega. No contiene claves. | GitHub | Vercel |
+
+**Servicio externo:** ninguno para el negocio (no hay integración con SAP). Supabase y Vercel son piezas que usamos pero no controlamos, y para eso existe el plan de falla.
+
+**Plan de falla.** Si Supabase no responde, o el servidor no se alcanza:
+- **Qué ve la persona:** «Checklist guardado · Pendiente de envío», con el aviso «No pudimos conectar con el servidor. Se reintentará cuando haya conexión». No ve un error técnico.
+- **Qué hace mientras tanto:** avisa por radio al ingeniero de turno o al planificador, como lo hace hoy, y puede abrir un checklist nuevo. Cuando vuelve la conexión, el prototipo reenvía solo los pendientes.
+- **Límite de la PoC:** el checklist pendiente vive solo en la memoria de la pestaña. Si se cierra la pestaña antes de reenviar, se pierde. Guardarlo en el teléfono de forma permanente queda fuera de esta prueba (ver más abajo).
+
+## Camino delgado
+
+**Acción:** el supervisor entrega el checklist de una actividad («Guardar y enviar», historia HU-01). Una entrada en pantalla, una validación en el servidor, un registro guardado y un folio como respuesta.
+
+**Por qué es lo más frágil:** todo el valor de la solución depende de que un dato completo y válido llegue del teléfono al registro que después verá el programador. Hoy ese dato llega tarde (uno o dos días) y con menos detalle. Si esta acción no funciona con piezas reales, la bandeja, el documento y el resto no tienen sobre qué apoyarse. Además depende de la señal de la planta, tanto en superficie como en interior mina. Si el envío falla, la documentación se entrega igual al día siguiente, que es justo el problema que queremos resolver.
+
+**Queda fuera por ahora** (es una decisión, no un olvido):
+- **El guardado permanente sin señal y la sincronización real.** Es la otra gran duda de la solución, pero requiere almacenamiento local y reglas de reintento; solo se prueba lo que ve la persona cuando el servicio falla.
+- **La firma:** se dibuja en pantalla, pero no se envía ni se guarda.
+- **Inicio de sesión y usuarios:** el nombre, el cargo y la empresa vienen de un perfil de ejemplo.
+- **La bandeja del programador, la edición del N° de OT y el documento descargable:** siguen simulados con datos de ejemplo.
+
+**Si algo falla, la persona ve:**
+- **Un dato inválido que el formulario dejó pasar:** el servidor no guarda nada y responde con un mensaje que dice cómo corregirlo (por ejemplo, «El N° de OT tiene 9 dígitos…»). El botón queda disponible para reintentar.
+- **El servidor o la base no responden:** «Pendiente de envío», como en el plan de falla.
+- **Sin señal:** el teléfono ni intenta enviar y deja el checklist pendiente.
+
+## Decisiones de arquitectura (ADR)
+
+**ADR 1 · El servidor decide, el formulario solo acompaña**
+- **Contexto:** el formulario ya valida en el teléfono, pero cualquiera puede alterar una petición y guardar datos inválidos.
+- **Decisión:** el servidor (`src/api/checklists.js`) vuelve a validar todo, calcula la duración y las horas hombre, y la base de datos agrega sus propias restricciones.
+- **Alternativa descartada:** confiar solo en la validación del formulario.
+- **Consecuencias:** la regla existe en tres lugares (formulario, servidor y base) y hay que mantenerlas iguales; a cambio, un dato inválido nunca queda guardado.
+
+**ADR 2 · Supabase (PostgreSQL) como base de datos**
+- **Contexto:** se necesita guardar el checklist de verdad, con un servicio gratuito que el equipo pueda configurar sin administrar un servidor.
+- **Decisión:** Supabase, al que el servidor le habla por su API web con una clave secreta guardada como variable de entorno en Vercel.
+- **Alternativa descartada:** guardar en un archivo o en la memoria del servidor, que se pierde en cada despliegue.
+- **Consecuencias:** depende de un servicio externo; por eso existe el plan de falla («Pendiente de envío»). La clave nunca va en el repositorio.
+
+**ADR 3 · Funciones de Vercel en la misma carpeta, sin servidor propio**
+- **Contexto:** la aplicación ya estaba publicada en Vercel como página estática.
+- **Decisión:** el backend son funciones de `src/api/`, que Vercel publica junto con la página, sin servicio extra que pagar ni mantener.
+- **Alternativa descartada:** un servidor aparte (por ejemplo, en otro servicio de alojamiento).
+- **Consecuencias:** un solo lugar de publicación y una sola dirección web; el límite es que cada función es corta y sin estado.
+
+## Evidencia
+
+Dirección pública: https://checklist-mantenimiento-src.vercel.app · Video: PENDIENTE: pegar aquí el enlace del video · Caso de error probado: con el control «Envío: Con N° de OT inválido (PoC)» el servidor rechaza el checklist, muestra el mensaje y no guarda ninguna fila.

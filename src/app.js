@@ -61,7 +61,9 @@
     filtroTurno: 'todos',
     filtroEquipo: 'todos',
     editando: null,
-    enviando: false
+    enviando: false,
+    reenviando: false,
+    pocInvalido: false
   };
 
   function nuevoBorrador() {
@@ -413,6 +415,7 @@
           '<div><button type="button" class="btn-sec" id="limpiar">Limpiar</button></div>' +
         '</div>' +
         '<p class="ayuda">Quien recibe firma después, en el documento descargado.</p>' +
+        '<p class="err" id="err-servidor" role="alert"></p>' +
         '<div class="acciones"><button type="button" class="btn-primario" id="enviar">Guardar y enviar</button></div>' +
       '</div>';
 
@@ -447,23 +450,81 @@
     $('#enviar').addEventListener('click', function () {
       if (S.enviando) return;
       if (!S.firmado) { mostrarFirmaErr('Falta tu firma. Dibújala con el dedo dentro del recuadro.'); return; }
+      $('#err-servidor').textContent = '';
       S.enviando = true;
       var b = $('#enviar'); b.disabled = true; b.textContent = 'Enviando…'; b.setAttribute('aria-busy', 'true');
-      setTimeout(function () {
-        var d = S.draft;
-        var reg = {
-          id: S.siguienteId++, area: areaFinal(d), equipo: equipoFinal(d), equipoAct: d.equipoAct.trim(),
-          detalle: d.detalle.trim(), obs: d.obs.trim(), fecha: d.fecha, turno: d.turno,
-          inicio: d.inicio, termino: d.termino, n_ot: d.n_ot,
-          traslado: parseInt(d.min_traslado, 10), espera: parseInt(d.min_espera_bloqueo, 10),
-          trab: d.n_trabajadores, hh: horasHombre(d), cargo: S.cargo,
-          estado: S.senal ? 'enviado' : 'pendiente'
-        };
-        if (S.senal) S.bandeja.unshift(reg); else S.pendientes.push(reg);
-        S.last = reg; S.enviando = false;
-        go('p4');
-      }, 1200);
+      var d = S.draft;
+      var reg = {
+        id: S.siguienteId++, area: areaFinal(d), equipo: equipoFinal(d), equipoAct: d.equipoAct.trim(),
+        detalle: d.detalle.trim(), obs: d.obs.trim(), fecha: d.fecha, turno: d.turno,
+        inicio: d.inicio, termino: d.termino, n_ot: d.n_ot,
+        traslado: parseInt(d.min_traslado, 10), espera: parseInt(d.min_espera_bloqueo, 10),
+        trab: d.n_trabajadores, hh: horasHombre(d), cargo: S.cargo, estado: 'pendiente'
+      };
+      function terminar() { S.last = reg; S.enviando = false; go('p4'); }
+
+      if (!S.senal) {            // sin señal: el teléfono ni siquiera intenta enviar
+        setTimeout(function () { S.pendientes.push(reg); terminar(); }, 1200);
+        return;
+      }
+      enviarAlServidor(reg).then(function (r) {
+        if (r.ok) {              // el servidor lo guardó y devolvió un folio
+          reg.estado = 'enviado'; reg.folio = r.datos.folio; reg.hh = r.datos.horas_hombre;
+          S.bandeja.unshift(reg); terminar();
+        } else if (r.status === 400) {   // el servidor lo rechazó: no se guardó nada
+          S.enviando = false; b.disabled = false; b.textContent = 'Guardar y enviar'; b.removeAttribute('aria-busy');
+          $('#err-servidor').textContent = '⚠ ' + (r.datos.mensaje || 'El servidor no aceptó el checklist. Revisa los datos.');
+        } else {                 // el servicio no responde: queda pendiente en el teléfono
+          reg.aviso = 'No pudimos conectar con el servidor.';
+          S.pendientes.push(reg); terminar();
+        }
+      });
     });
+  }
+
+  /* ---------- Envío real al servidor (PoC) ---------- */
+  function cargaUtil(c) {
+    var p = {
+      area: c.area, equipo: c.equipo, equipo_actividad: c.equipoAct, fecha_turno: c.fecha, turno: c.turno,
+      hora_inicio: c.inicio, hora_termino: c.termino, n_ot: c.n_ot, detalle_realizado: c.detalle,
+      observaciones: c.obs, n_trabajadores: c.trab, min_traslado: c.traslado, min_espera_bloqueo: c.espera,
+      cargo: c.cargo
+    };
+    if (S.pocInvalido) p.n_ot = '123';   // prueba de la PoC: manda un dato que el formulario no dejaría pasar
+    return p;
+  }
+  function enviarAlServidor(c) {
+    var ctrl = new AbortController();
+    var t = setTimeout(function () { ctrl.abort(); }, 10000);
+    return fetch('/api/checklists', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cargaUtil(c)), signal: ctrl.signal
+    }).then(function (r) {
+      clearTimeout(t);
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        return { ok: r.status === 201, status: r.status, datos: j };
+      });
+    }).catch(function () { clearTimeout(t); return { ok: false, status: 0, datos: {} }; });
+  }
+  function reenviarPendientes() {
+    if (S.reenviando) return;
+    S.reenviando = true;
+    var lista = S.pendientes.slice(); S.pendientes = []; var enviados = 0;
+    (function siguiente(i) {
+      if (i >= lista.length) {
+        S.reenviando = false;
+        if (enviados) toast(enviados === 1 ? 'Volvió la señal: se envió 1 checklist pendiente.' : 'Volvió la señal: se enviaron ' + enviados + ' checklists pendientes.');
+        else toast('No se pudo enviar. Los checklists siguen pendientes.');
+        if (ruta() === 'p5') cargarP5(); else if (ruta() === 'p4') { vistaP4(); reengancharIr(); }
+        return;
+      }
+      var c = lista[i];
+      enviarAlServidor(c).then(function (r) {
+        if (r.ok) { c.estado = 'enviado'; c.folio = r.datos.folio; c.hh = r.datos.horas_hombre; delete c.aviso; S.bandeja.unshift(c); enviados++; }
+        else S.pendientes.push(c);
+        siguiente(i + 1);
+      });
+    })(0);
   }
 
   /* ---------- P4 · Confirmación ---------- */
@@ -477,12 +538,14 @@
         (ok
           ? '<div class="tarjeta"><h2>Checklist enviado</h2>' +
               '<p>Estado: <span class="estado-ok">Enviado ✓</span></p>' +
+              '<p>Folio: <strong>' + esc(l.folio) + '</strong></p>' +
               '<p>Horas hombre</p><p class="cifra">' + fmt(l.hh) + '</p>' +
               '<p>' + esc(l.equipo) + '</p></div>' +
             '<p class="ayuda">El programador ya lo ve en su bandeja.</p>'
           : '<div class="tarjeta alerta"><h2>Checklist guardado</h2>' +
               '<p>Estado: <span class="estado-pend">Pendiente de envío</span></p>' +
               '<p class="estado-pend">Se enviará al recuperar señal</p>' +
+              (l.aviso ? '<p>' + esc(l.aviso) + ' Se reintentará cuando haya conexión.</p>' : '') +
               '<p>Horas hombre</p><p class="cifra">' + fmt(l.hh) + '</p>' +
               '<p>' + esc(l.equipo) + '</p></div>' +
             '<p class="ayuda">Puedes abrir un checklist nuevo. Si hace falta avisar ya, usa la radio como siempre.</p>') +
@@ -642,15 +705,10 @@
   });
   ctl('ctl-senal').addEventListener('change', function (e) {
     S.senal = (e.target.value === 'con');
-    if (S.senal && S.pendientes.length) {
-      var n = S.pendientes.length;
-      S.pendientes.forEach(function (c) { c.estado = 'enviado'; S.bandeja.unshift(c); });
-      if (S.last && S.last.estado === 'pendiente') S.last.estado = 'enviado';
-      S.pendientes = [];
-      toast(n === 1 ? 'Volvió la señal: se envió 1 checklist pendiente.' : 'Volvió la señal: se enviaron ' + n + ' checklists pendientes.');
-    }
+    if (S.senal && S.pendientes.length) { reenviarPendientes(); return; }
     if (ruta() === 'p5') cargarP5(); else if (ruta() === 'p4') { vistaP4(); reengancharIr(); }
   });
+  ctl('ctl-poc').addEventListener('change', function (e) { S.pocInvalido = (e.target.value === 'invalido'); });
   ctl('ctl-bandeja').addEventListener('change', function (e) {
     S.bandeja = (e.target.value === 'datos') ? semilla().concat(S.bandeja.filter(function (c) { return c.id >= 104; })) : [];
     S.filtroTurno = 'todos'; S.filtroEquipo = 'todos';
