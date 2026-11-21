@@ -30,7 +30,7 @@ Hay un prototipo navegable en `src/` (enlace en `docs/prototipo.md`). Una acció
 ### Prueba de concepto (Avance 7)
 **Qué hace:** el supervisor completa el checklist de una actividad y toca «Guardar y enviar». El servidor valida los datos, los guarda en una base de datos y responde con un **folio**. Si un dato no cumple, no se guarda y se muestra el motivo. Detalle de las piezas y del camino delgado: [docs/arquitectura.md](docs/arquitectura.md).
 
-**Dirección pública:** https://checklist-mantenimiento-src.vercel.app · **Video (1 a 2 minutos):** PENDIENTE: pegar aquí el enlace del video
+**Dirección pública:** https://checklist-mantenimiento-src.vercel.app · **Video del flujo (caso exitoso y caso de error):** [ver en Google Drive](https://drive.google.com/file/d/1fCneYLfVQAqYovRSSEhnulLa-g8c7d4w/view?usp=sharing)
 
 **Qué necesita:** Node.js 20.6 o superior (probado con la versión 22) y una cuenta gratuita en [Supabase](https://supabase.com). No se instalan librerías: no hay `npm install`.
 
