@@ -12,7 +12,7 @@
     <p class="proto-title">Prototipo · controles de simulación</p>
     <div class="proto-row">
       <label for="ctl-rol">Vista</label>
-      <select id="ctl-rol">
+      <select id="ctl-rol" autocomplete="off">
         <option value="supervisor">Supervisor</option>
         <option value="capataz">Capataz</option>
         <option value="programador">Programador</option>
@@ -20,14 +20,21 @@
     </div>
     <div class="proto-row">
       <label for="ctl-senal">Señal</label>
-      <select id="ctl-senal">
+      <select id="ctl-senal" autocomplete="off">
         <option value="con">Con señal</option>
         <option value="sin">Sin señal</option>
       </select>
     </div>
     <div class="proto-row">
+      <label for="ctl-poc">Envío</label>
+      <select id="ctl-poc" autocomplete="off">
+        <option value="normal">Normal</option>
+        <option value="invalido">Con N° de OT inválido (PoC)</option>
+      </select>
+    </div>
+    <div class="proto-row">
       <label for="ctl-bandeja">Bandeja</label>
-      <select id="ctl-bandeja">
+      <select id="ctl-bandeja" autocomplete="off">
         <option value="datos">Con datos de ejemplo</option>
         <option value="vacia">Vacía</option>
       </select>

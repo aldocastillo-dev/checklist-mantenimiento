@@ -8,6 +8,7 @@ El prototipo está en [`src/`](../src/) (HTML, CSS y JavaScript, sin librerías 
 - **Vista:** Supervisor o Capataz (empiezan en P1; solo cambia el cargo que aparece en la firma) o Programador (empieza en P5).
 - **Señal:** «Sin señal» activa el camino alternativo de la historia principal; al volver a «Con señal» los checklist pendientes se envían.
 - **Bandeja:** «Vacía» muestra el estado vacío de P5.
+- **Envío:** desde el Avance 7, con señal el botón «Guardar y enviar» guarda el checklist de verdad (ver `docs/arquitectura.md`). «Con N° de OT inválido (PoC)» manda un dato que el servidor rechaza.
 
 Los datos del usuario (por ejemplo «Juan Pérez», «Sigma S.A.») son de ejemplo. En la app real el nombre, el cargo y la empresa vienen del perfil de quien inicia sesión, no se escriben en cada checklist.
 
@@ -56,7 +57,7 @@ flowchart TD
 Cada pantalla responde ¿dónde estoy? (título y «Paso x de 3»), ¿cómo continúo? (un solo botón principal) y ¿cómo vuelvo? (botón «Volver», «Inicio» o «Cancelar» arriba a la izquierda). En P1, que es la entrada, ese botón es «Cancelar». En P4 es «Inicio», para no volver a la firma y enviar dos veces. En P5 lleva a P1 porque en el prototipo ambas son puntos de entrada; en la app real sería cerrar sesión.
 
 Caminos alternativos (ambos se pueden recorrer en el prototipo):
-1. **Sin cobertura** (criterio alternativo de HU-01): elegir «Sin señal» en los controles, completar el checklist y tocar «Guardar y enviar». Se ve el estado «Pendiente de envío» con el aviso «Se enviará al recuperar señal» y se puede abrir un checklist nuevo.
+1. **Sin cobertura** (criterio alternativo de HU-01): elegir «Sin señal» en los controles, completar el checklist y tocar «Guardar y enviar». Se ve el estado «Pendiente de envío» con el aviso «Se enviará al recuperar señal» y se puede abrir un checklist nuevo. Desde el Avance 7 el pendiente queda guardado en el navegador: al volver a abrir la aplicación aparece «Tienes 1 checklist sin enviar».
 2. **Campo vacío o inválido:** tocar «Siguiente» en P1 sin completar, o «Firmar» en P2 sin el detalle realizado, o «Guardar y enviar» en P3 sin firma. El error aparece junto al campo y dice cómo corregirlo.
 
 Además se puede **cancelar** en P1 (con confirmación) y la bandeja muestra un **error de conexión** si se elige «Sin señal».
