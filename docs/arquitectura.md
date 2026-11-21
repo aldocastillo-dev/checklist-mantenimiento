@@ -77,6 +77,6 @@ flowchart LR
 
 ## Evidencia
 
-Dirección pública: https://checklist-mantenimiento-src.vercel.app · Video: PENDIENTE: pegar aquí el enlace del video · Caso de error probado: con el control «Envío: Con N° de OT inválido (PoC)» el servidor rechaza el checklist, muestra el mensaje y no guarda ninguna fila.
+Dirección pública: https://checklist-mantenimiento-src.vercel.app · Video: [caso exitoso y caso de error](https://drive.google.com/file/d/1fCneYLfVQAqYovRSSEhnulLa-g8c7d4w/view?usp=sharing) · Caso de error probado: con el control «Envío: Con N° de OT inválido (PoC)» el servidor rechaza el checklist, muestra el mensaje y no guarda ninguna fila.
 
 **Prueba con la base real (20-11-2026):** caso exitoso con folio ([pantalla](img/poc/01-exitoso-folio1.png), [fila en Supabase](img/poc/02-supabase-fila1.png)), error del servidor sin guardar nada ([mensaje](img/poc/04-servidor-rechaza-ot.png), [tabla sin cambios](img/poc/05-supabase-sigue-1-fila.png)) y pendiente sin señal que se envía al reabrir ([pendiente](img/poc/08-sin-senal-pendiente.png), [fila 3](img/poc/09-supabase-3-filas-reenvio.png)). Lista completa en [prueba-humo.md](prueba-humo.md).
