@@ -24,7 +24,7 @@ flowchart LR
 
 | Pieza | Qué hace en nuestra solución | Con qué está hecha | Con quién se comunica |
 |---|---|---|---|
-| Frontend | Muestra las cinco pantallas del checklist, valida los campos antes de enviar y, al tocar «Guardar y enviar», manda los datos al backend. Muestra el folio si se guardó, el error si el servidor lo rechazó, o «Pendiente de envío» si no hay conexión. | HTML, CSS y JavaScript sin librerías (`src/`) | Backend, por `POST /api/checklists` |
+| Frontend | Muestra las cinco pantallas del checklist, valida los campos antes de enviar y, al tocar «Guardar y enviar», manda los datos al backend. Muestra el folio si se guardó, el error si el servidor lo rechazó, o «Pendiente de envío» si no hay conexión. Guarda los pendientes en el navegador del teléfono y los reenvía al volver la señal. | HTML, CSS y JavaScript sin librerías (`src/`) | Backend, por `POST /api/checklists` |
 | Backend | Recibe el checklist, lo valida de nuevo (el servidor es el que manda: ignora los campos que no están en su lista, rechaza datos inválidos y calcula él mismo la duración y las horas hombre), lo guarda y responde con el folio o con el error. | Función de Node.js (`src/api/checklists.js`, `_validar.js`, `_db.js`), sin librerías | Frontend y Supabase |
 | Base de datos | Guarda cada checklist entregado como una fila de la tabla `checklists`, con las mismas reglas como segunda defensa (el N° de OT con 9 dígitos, turno día o noche, minutos sin valores negativos). Nadie puede leer ni escribir desde el navegador: solo entra el servidor con su clave secreta. | Supabase (PostgreSQL), esquema en `supabase/schema.sql` | Backend, por su API REST |
 | Publicación | Pone el sitio y la función en una dirección pública, sin iniciar sesión, y guarda las claves como variables de entorno. | Vercel, con la carpeta raíz `src` | GitHub (recibe el código) y las personas (abren la dirección) |
@@ -35,7 +35,8 @@ flowchart LR
 **Plan de falla.** Si Supabase no responde, o el servidor no se alcanza:
 - **Qué ve la persona:** «Checklist guardado · Pendiente de envío», con el aviso «No pudimos conectar con el servidor. Se reintentará cuando haya conexión». No ve un error técnico.
 - **Qué hace mientras tanto:** avisa por radio al ingeniero de turno o al planificador, como lo hace hoy, y puede abrir un checklist nuevo. Cuando vuelve la conexión, el prototipo reenvía solo los pendientes.
-- **Límite de la PoC:** el checklist pendiente vive solo en la memoria de la pestaña. Si se cierra la pestaña antes de reenviar, se pierde. Guardarlo en el teléfono de forma permanente queda fuera de esta prueba (ver más abajo).
+- **Dónde queda el checklist:** guardado en el navegador del teléfono (`localStorage`), así que no se pierde si se cierra la aplicación. Al abrirla de nuevo aparece «Tienes 1 checklist sin enviar»; con señal se envía solo, o con el botón «Enviar ahora».
+- **Límite de la PoC:** si se borran los datos del navegador, el pendiente se pierde. Una cola de envío completa (IndexedDB, reintentos programados y aviso al programador si nunca llega) queda fuera de esta prueba.
 
 ## Camino delgado
 
@@ -44,7 +45,7 @@ flowchart LR
 **Por qué es lo más frágil:** todo el valor de la solución depende de que un dato completo y válido llegue del teléfono al registro que después verá el programador. Hoy ese dato llega tarde (uno o dos días) y con menos detalle. Si esta acción no funciona con piezas reales, la bandeja, el documento y el resto no tienen sobre qué apoyarse. Además depende de la señal de la planta, tanto en superficie como en interior mina. Si el envío falla, la documentación se entrega igual al día siguiente, que es justo el problema que queremos resolver.
 
 **Queda fuera por ahora** (es una decisión, no un olvido):
-- **El guardado permanente sin señal y la sincronización real.** Es la otra gran duda de la solución, pero requiere almacenamiento local y reglas de reintento; solo se prueba lo que ve la persona cuando el servicio falla.
+- **La sincronización completa sin señal.** Se prueba lo básico (el pendiente se guarda en el teléfono y se reenvía al volver la señal), pero no la cola completa con IndexedDB, los reintentos programados ni abrir la aplicación sin conexión desde cero.
 - **La firma:** se dibuja en pantalla, pero no se envía ni se guarda.
 - **Inicio de sesión y usuarios:** el nombre, el cargo y la empresa vienen de un perfil de ejemplo.
 - **La bandeja del programador, la edición del N° de OT y el documento descargable:** siguen simulados con datos de ejemplo.
@@ -52,7 +53,7 @@ flowchart LR
 **Si algo falla, la persona ve:**
 - **Un dato inválido que el formulario dejó pasar:** el servidor no guarda nada y responde con un mensaje que dice cómo corregirlo (por ejemplo, «El N° de OT tiene 9 dígitos…»). El botón queda disponible para reintentar.
 - **El servidor o la base no responden:** «Pendiente de envío», como en el plan de falla.
-- **Sin señal:** el teléfono ni intenta enviar y deja el checklist pendiente.
+- **Sin señal:** el teléfono ni intenta enviar, guarda el checklist y lo muestra como pendiente hasta que vuelva la señal.
 
 ## Decisiones de arquitectura (ADR)
 

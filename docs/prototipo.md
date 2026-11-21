@@ -57,7 +57,7 @@ flowchart TD
 Cada pantalla responde ¿dónde estoy? (título y «Paso x de 3»), ¿cómo continúo? (un solo botón principal) y ¿cómo vuelvo? (botón «Volver», «Inicio» o «Cancelar» arriba a la izquierda). En P1, que es la entrada, ese botón es «Cancelar». En P4 es «Inicio», para no volver a la firma y enviar dos veces. En P5 lleva a P1 porque en el prototipo ambas son puntos de entrada; en la app real sería cerrar sesión.
 
 Caminos alternativos (ambos se pueden recorrer en el prototipo):
-1. **Sin cobertura** (criterio alternativo de HU-01): elegir «Sin señal» en los controles, completar el checklist y tocar «Guardar y enviar». Se ve el estado «Pendiente de envío» con el aviso «Se enviará al recuperar señal» y se puede abrir un checklist nuevo.
+1. **Sin cobertura** (criterio alternativo de HU-01): elegir «Sin señal» en los controles, completar el checklist y tocar «Guardar y enviar». Se ve el estado «Pendiente de envío» con el aviso «Se enviará al recuperar señal» y se puede abrir un checklist nuevo. Desde el Avance 7 el pendiente queda guardado en el navegador: al volver a abrir la aplicación aparece «Tienes 1 checklist sin enviar».
 2. **Campo vacío o inválido:** tocar «Siguiente» en P1 sin completar, o «Firmar» en P2 sin el detalle realizado, o «Guardar y enviar» en P3 sin firma. El error aparece junto al campo y dice cómo corregirlo.
 
 Además se puede **cancelar** en P1 (con confirmación) y la bandeja muestra un **error de conexión** si se elige «Sin señal».

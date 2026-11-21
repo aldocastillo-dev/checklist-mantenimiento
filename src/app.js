@@ -48,13 +48,15 @@
     ];
   }
 
+  var CLAVE_PEND = 'reportemtto.pendientes';   // dónde se guardan los pendientes en el navegador
+
   var S = {
     cargo: 'Supervisor',
     senal: true,
     draft: nuevoBorrador(),
     firmado: false,
     bandeja: semilla(),
-    pendientes: [],
+    pendientes: leerPendientes(),
     last: null,
     siguienteId: 104,
     cargaP5: false,
@@ -66,6 +68,20 @@
     pocInvalido: false
   };
 
+  /* ---------- Pendientes guardados en el teléfono (PoC) ----------
+     Se guardan en el navegador (localStorage) para que no se pierdan si se cierra la pestaña.
+     Si el navegador no deja guardar (modo privado, almacenamiento bloqueado), siguen solo en memoria. */
+  function leerPendientes() {
+    try {
+      var v = JSON.parse(localStorage.getItem(CLAVE_PEND) || '[]');
+      return Array.isArray(v) ? v : [];
+    } catch (e) { return []; }
+  }
+  function guardarPendientes() {
+    try { localStorage.setItem(CLAVE_PEND, JSON.stringify(S.pendientes)); } catch (e) { /* sin almacenamiento: queda en memoria */ }
+  }
+  function agregarPendiente(reg) { S.pendientes.push(reg); guardarPendientes(); }
+
   function nuevoBorrador() {
     return {
       area: '', areaOtra: '', equipo: '', equipoOtro: '', equipoAct: '',
@@ -75,6 +91,8 @@
       p1Ok: false, p2Ok: false
     };
   }
+
+  S.pendientes.forEach(function (c) { if (c.id >= S.siguienteId) S.siguienteId = c.id + 1; });
 
   /* ---------- utilidades ---------- */
   var app = document.getElementById('app');
@@ -221,13 +239,14 @@
         '<button type="button" class="back" id="cancelar">‹ Cancelar</button>' +
         '<span class="marca">ReporteMtto</span></header>' +
       '<form class="screen" id="f1" novalidate>' +
+        '<div id="aviso-pend" role="status"></div>' +
         '<div><p class="paso">Paso 1 de 3</p><h1>Nuevo checklist</h1></div>' +
         '<p class="ayuda">Son los mismos recuadros de la hoja del check list. Los campos con * son obligatorios.</p>' +
 
         '<div class="campo"><label for="area">Área *</label>' +
           '<select id="area" aria-describedby="err-area">' + opciones(AREAS, d.area, true) + '</select>' +
           '<div class="campo" id="wrap-areaOtra"' + (d.area === '__otro' ? '' : ' hidden') + '><label for="areaOtra">Nombre del área *</label>' +
-          '<input type="text" id="areaOtra" placeholder="Ej: Taller" value="' + esc(d.areaOtra) + '"></div>' +
+          '<input type="text" id="areaOtra" maxlength="80" placeholder="Ej: Taller" value="' + esc(d.areaOtra) + '"></div>' +
           campoErr('area') + '</div>' +
 
         '<div class="campo"><label for="equipo">Equipo *</label>' +
@@ -235,7 +254,7 @@
             (d.area ? opciones(listaEq, d.equipo, true) : '<option value="">Primero elige el área</option>') + '</select>' +
           (sinLista ? '<p class="ayuda">Esta área no tiene lista de equipos: elige «Otro (escribir)».</p>' : '') +
           '<div class="campo" id="wrap-equipoOtro"' + (d.equipo === '__otro' ? '' : ' hidden') + '><label for="equipoOtro">Nombre del equipo *</label>' +
-          '<input type="text" id="equipoOtro" placeholder="Ej: Correa Nueva" value="' + esc(d.equipoOtro) + '"></div>' +
+          '<input type="text" id="equipoOtro" maxlength="80" placeholder="Ej: Correa Nueva" value="' + esc(d.equipoOtro) + '"></div>' +
           campoErr('equipo') + '</div>' +
 
         '<div class="fila-2">' +
@@ -248,7 +267,7 @@
         '<p class="ayuda">Fecha y turno vienen preseleccionados según la hora del teléfono. Cámbialos si reportas otro turno.</p>' +
 
         '<div class="campo"><label for="equipoAct">Equipo de la actividad *</label>' +
-          '<input type="text" id="equipoAct" aria-describedby="ayuda-eqact err-equipoAct" placeholder="Ej: Polea de cola de Correa Reversible" value="' + esc(d.equipoAct) + '">' +
+          '<input type="text" id="equipoAct" maxlength="120" aria-describedby="ayuda-eqact err-equipoAct" placeholder="Ej: Polea de cola de Correa Reversible" value="' + esc(d.equipoAct) + '">' +
           '<p class="ayuda" id="ayuda-eqact">Puede ser un sub equipo del equipo de arriba.</p>' + campoErr('equipoAct') + '</div>' +
 
         '<div class="campo"><label for="inicio">Hora inicio *</label>' +
@@ -312,6 +331,7 @@
     });
 
     limpiarErroresAlEscribir($('#f1'));
+    pintarAvisoPendientes();
     $('#f1').addEventListener('submit', function (e) {
       e.preventDefault(); guardar();
       var errs = {}, foco = {};
@@ -341,11 +361,11 @@
         '<p class="ayuda">' + esc(areaFinal(d)) + ' · ' + esc(equipoFinal(d)) + '<br>Actividad en: ' + esc(d.equipoAct) + '</p>' +
 
         '<div class="campo"><label for="detalle">Detalle realizado *</label>' +
-          '<textarea id="detalle" aria-describedby="ayuda-det err-detalle" placeholder="Escribe o pega aquí lo que se hizo">' + esc(d.detalle) + '</textarea>' +
+          '<textarea id="detalle" maxlength="2000" aria-describedby="ayuda-det err-detalle" placeholder="Escribe o pega aquí lo que se hizo">' + esc(d.detalle) + '</textarea>' +
           '<p class="ayuda" id="ayuda-det">Puedes pegar el reporte que ya tienes escrito en las notas de tu teléfono.</p>' + campoErr('detalle') + '</div>' +
 
         '<div class="campo"><label for="obs">Observaciones detectadas durante recepción de actividades <span class="opc">(opcional)</span></label>' +
-          '<textarea id="obs" aria-describedby="ayuda-obs" placeholder="Escribe o pega aquí lo que se detectó">' + esc(d.obs) + '</textarea>' +
+          '<textarea id="obs" maxlength="2000" aria-describedby="ayuda-obs" placeholder="Escribe o pega aquí lo que se detectó">' + esc(d.obs) + '</textarea>' +
           '<p class="ayuda" id="ayuda-obs">Si necesitas indicar el N° SAP de un repuesto, anótalo aquí.</p></div>' +
 
         '<div class="tarjeta" aria-live="polite"><span>Duración actividad (calculada)</span>' +
@@ -464,7 +484,7 @@
       function terminar() { S.last = reg; S.enviando = false; go('p4'); }
 
       if (!S.senal) {            // sin señal: el teléfono ni siquiera intenta enviar
-        setTimeout(function () { S.pendientes.push(reg); terminar(); }, 1200);
+        setTimeout(function () { agregarPendiente(reg); terminar(); }, 1200);
         return;
       }
       enviarAlServidor(reg).then(function (r) {
@@ -476,10 +496,25 @@
           $('#err-servidor').textContent = '⚠ ' + (r.datos.mensaje || 'El servidor no aceptó el checklist. Revisa los datos.');
         } else {                 // el servicio no responde: queda pendiente en el teléfono
           reg.aviso = 'No pudimos conectar con el servidor.';
-          S.pendientes.push(reg); terminar();
+          agregarPendiente(reg); terminar();
         }
       });
     });
+  }
+
+  /* ---------- Aviso de checklists sin enviar (P1) ---------- */
+  function pintarAvisoPendientes() {
+    var cont = document.getElementById('aviso-pend');
+    if (!cont) return;
+    var n = S.pendientes.length;
+    if (!n) { cont.innerHTML = ''; return; }
+    cont.innerHTML =
+      '<div class="banner-error"><strong>' + (n === 1 ? 'Tienes 1 checklist sin enviar' : 'Tienes ' + n + ' checklists sin enviar') + '</strong>' +
+      '<p>' + (S.senal ? 'Hay señal: puedes enviarlo ahora.' : 'Está guardado en este teléfono y se enviará al recuperar señal.') + '</p>' +
+      (S.senal ? '<button type="button" class="btn-sec" id="reenviar-ahora">' + (S.reenviando ? 'Enviando…' : 'Enviar ahora') + '</button>' : '') +
+      '</div>';
+    var b = document.getElementById('reenviar-ahora');
+    if (b) b.addEventListener('click', function () { b.disabled = true; b.textContent = 'Enviando…'; reenviarPendientes(); });
   }
 
   /* ---------- Envío real al servidor (PoC) ---------- */
@@ -510,18 +545,27 @@
     if (S.reenviando) return;
     S.reenviando = true;
     var lista = S.pendientes.slice(); S.pendientes = []; var enviados = 0;
+    var refrescar = function () {
+      if (ruta() === 'p5') cargarP5();
+      else if (ruta() === 'p4') { vistaP4(); reengancharIr(); }
+      else if (ruta() === 'p1') pintarAvisoPendientes();
+    };
     (function siguiente(i) {
       if (i >= lista.length) {
         S.reenviando = false;
         if (enviados) toast(enviados === 1 ? 'Volvió la señal: se envió 1 checklist pendiente.' : 'Volvió la señal: se enviaron ' + enviados + ' checklists pendientes.');
         else toast('No se pudo enviar. Los checklists siguen pendientes.');
-        if (ruta() === 'p5') cargarP5(); else if (ruta() === 'p4') { vistaP4(); reengancharIr(); }
+        guardarPendientes(); refrescar();
         return;
       }
       var c = lista[i];
       enviarAlServidor(c).then(function (r) {
-        if (r.ok) { c.estado = 'enviado'; c.folio = r.datos.folio; c.hh = r.datos.horas_hombre; delete c.aviso; S.bandeja.unshift(c); enviados++; }
-        else S.pendientes.push(c);
+        if (r.ok) { c.estado = 'enviado'; c.folio = r.datos.folio; c.hh = r.datos.horas_hombre; delete c.aviso; S.bandeja.unshift(c); enviados++; if (S.last && S.last.id === c.id) S.last = c; }
+        else {
+          if (r.status === 400) c.aviso = 'El servidor no lo aceptó: ' + (r.datos.mensaje || 'revisa los datos') + '.';
+          S.pendientes.push(c);
+        }
+        guardarPendientes();
         siguiente(i + 1);
       });
     })(0);
@@ -545,6 +589,7 @@
           : '<div class="tarjeta alerta"><h2>Checklist guardado</h2>' +
               '<p>Estado: <span class="estado-pend">Pendiente de envío</span></p>' +
               '<p class="estado-pend">Se enviará al recuperar señal</p>' +
+              '<p>Quedó guardado en este teléfono: no se pierde si cierras la aplicación.</p>' +
               (l.aviso ? '<p>' + esc(l.aviso) + ' Se reintentará cuando haya conexión.</p>' : '') +
               '<p>Horas hombre</p><p class="cifra">' + fmt(l.hh) + '</p>' +
               '<p>' + esc(l.equipo) + '</p></div>' +
@@ -706,7 +751,7 @@
   ctl('ctl-senal').addEventListener('change', function (e) {
     S.senal = (e.target.value === 'con');
     if (S.senal && S.pendientes.length) { reenviarPendientes(); return; }
-    if (ruta() === 'p5') cargarP5(); else if (ruta() === 'p4') { vistaP4(); reengancharIr(); }
+    if (ruta() === 'p5') cargarP5(); else if (ruta() === 'p4') { vistaP4(); reengancharIr(); } else if (ruta() === 'p1') pintarAvisoPendientes();
   });
   ctl('ctl-poc').addEventListener('change', function (e) { S.pocInvalido = (e.target.value === 'invalido'); });
   ctl('ctl-bandeja').addEventListener('change', function (e) {
@@ -720,6 +765,10 @@
     if (ruta() === 'p5') cargarP5();
   });
 
+  // Si el teléfono vuelve a tener conexión, se reintenta solo.
+  window.addEventListener('online', function () { if (S.senal && S.pendientes.length) reenviarPendientes(); });
+
   render();
   if (ruta() === 'p5') cargarP5();
+  if (S.senal && S.pendientes.length) reenviarPendientes();   // pendientes de una visita anterior
 })();
