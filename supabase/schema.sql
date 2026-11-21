@@ -20,8 +20,12 @@ create table if not exists public.checklists (
   horas_hombre       numeric(6,1) not null check (horas_hombre >= 0),
   cargo              text    not null check (cargo in ('Supervisor', 'Capataz')),
   estado             text    not null default 'enviado' check (estado in ('pendiente', 'enviado')),
-  creado_en          timestamptz not null default now()
+  creado_en          timestamptz not null default now(),
+  id_envio           text    unique check (id_envio ~ '^[A-Za-z0-9-]{8,64}$')
 );
+
+-- Para una base creada antes de agregar id_envio (no hace nada si la columna ya existe):
+alter table public.checklists add column if not exists id_envio text unique check (id_envio ~ '^[A-Za-z0-9-]{8,64}$');
 
 -- Nadie puede leer ni escribir desde el navegador: sin políticas, solo entra el servidor con su clave secreta.
 alter table public.checklists enable row level security;

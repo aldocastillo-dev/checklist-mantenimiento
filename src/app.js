@@ -81,6 +81,11 @@
     try { localStorage.setItem(CLAVE_PEND, JSON.stringify(S.pendientes)); } catch (e) { /* sin almacenamiento: queda en memoria */ }
   }
   function agregarPendiente(reg) { S.pendientes.push(reg); guardarPendientes(); }
+  // Código único de cada checklist: si se envía dos veces (dos pestañas, doble toque), el servidor guarda una sola fila.
+  function nuevoIdEnvio() {
+    try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) { /* sigue abajo */ }
+    return 'e' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+  }
 
   function nuevoBorrador() {
     return {
@@ -92,7 +97,10 @@
     };
   }
 
-  S.pendientes.forEach(function (c) { if (c.id >= S.siguienteId) S.siguienteId = c.id + 1; });
+  S.pendientes.forEach(function (c) {
+    if (c.id >= S.siguienteId) S.siguienteId = c.id + 1;
+    if (!c.idEnvio) c.idEnvio = nuevoIdEnvio();   // pendientes guardados antes de existir el código
+  });
 
   /* ---------- utilidades ---------- */
   var app = document.getElementById('app');
@@ -479,7 +487,8 @@
         detalle: d.detalle.trim(), obs: d.obs.trim(), fecha: d.fecha, turno: d.turno,
         inicio: d.inicio, termino: d.termino, n_ot: d.n_ot,
         traslado: parseInt(d.min_traslado, 10), espera: parseInt(d.min_espera_bloqueo, 10),
-        trab: d.n_trabajadores, hh: horasHombre(d), cargo: S.cargo, estado: 'pendiente'
+        trab: d.n_trabajadores, hh: horasHombre(d), cargo: S.cargo, estado: 'pendiente',
+        idEnvio: nuevoIdEnvio()
       };
       function terminar() { S.last = reg; S.enviando = false; go('p4'); }
 
@@ -523,7 +532,7 @@
       area: c.area, equipo: c.equipo, equipo_actividad: c.equipoAct, fecha_turno: c.fecha, turno: c.turno,
       hora_inicio: c.inicio, hora_termino: c.termino, n_ot: c.n_ot, detalle_realizado: c.detalle,
       observaciones: c.obs, n_trabajadores: c.trab, min_traslado: c.traslado, min_espera_bloqueo: c.espera,
-      cargo: c.cargo
+      cargo: c.cargo, id_envio: c.idEnvio
     };
     if (S.pocInvalido) p.n_ot = '123';   // prueba de la PoC: manda un dato que el formulario no dejaría pasar
     return p;
@@ -537,7 +546,7 @@
     }).then(function (r) {
       clearTimeout(t);
       return r.json().catch(function () { return {}; }).then(function (j) {
-        return { ok: r.status === 201, status: r.status, datos: j };
+        return { ok: r.status === 201 || r.status === 200, status: r.status, datos: j };
       });
     }).catch(function () { clearTimeout(t); return { ok: false, status: 0, datos: {} }; });
   }
@@ -763,6 +772,13 @@
   window.addEventListener('hashchange', function () {
     render();
     if (ruta() === 'p5') cargarP5();
+  });
+
+  // Si otra pestaña cambió los pendientes, esta se pone al día (para no mostrar ni reenviar algo ya enviado).
+  window.addEventListener('storage', function (e) {
+    if (e.key !== CLAVE_PEND || S.reenviando) return;
+    S.pendientes = leerPendientes();
+    if (ruta() === 'p1') pintarAvisoPendientes();
   });
 
   // Si el teléfono vuelve a tener conexión, se reintenta solo.

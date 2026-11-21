@@ -5,6 +5,7 @@
 
 const HORA = /^([01]\d|2[0-3]):[0-5]\d$/;
 const FECHA = /^\d{4}-\d{2}-\d{2}$/;
+const ID_ENVIO = /^[A-Za-z0-9-]{8,64}$/;
 
 function texto(v) { return typeof v === 'string' ? v.trim() : ''; }
 
@@ -75,6 +76,10 @@ function validar(body) {
   const cargo = texto(b.cargo);
   if (cargo !== 'Supervisor' && cargo !== 'Capataz') errores.cargo = 'El cargo debe ser «Supervisor» o «Capataz».';
 
+  // Código único que el teléfono le pone a cada checklist: si llega dos veces, se guarda una sola.
+  const idEnvio = texto(b.id_envio);
+  if (idEnvio && !ID_ENVIO.test(idEnvio)) errores.id_envio = 'El código del envío no es válido.';
+
   if (Object.keys(errores).length) return { errores, datos: null };
 
   // La duración y las horas hombre las calcula el servidor; no se confía en lo que calculó el teléfono.
@@ -88,7 +93,8 @@ function validar(body) {
       fecha_turno: fecha, turno, hora_inicio: inicio, hora_termino: termino,
       n_ot: nOt, detalle_realizado: detalle, observaciones: obs || null,
       n_trabajadores: trab, min_traslado: traslado, min_espera_bloqueo: espera,
-      duracion_min: duracion, horas_hombre: horasHombre, cargo, estado: 'enviado'
+      duracion_min: duracion, horas_hombre: horasHombre, cargo, estado: 'enviado',
+      id_envio: idEnvio || null
     }
   };
 }

@@ -13,8 +13,11 @@ Lista corta que se corre **antes de entregar**, en la dirección publicada (http
 | 7 | Campo vacío | En la pantalla 2, dejar «Detalle realizado» con solo espacios y tocar «Siguiente». | Aviso junto al campo y no avanza. | Pasa · 20-11-2026 | [aviso](img/poc/10-detalle-vacio.png) |
 | 8 | Texto larguísimo | Pegar un texto muy largo en «Detalle realizado» y enviar. | El campo no acepta más de 2.000 caracteres y el servidor lo guarda. | Pasa · 20-11-2026 | [texto](img/poc/11-texto-largo.png) |
 | 9 | Enviar dos veces | Tocar «Guardar y enviar» dos veces seguidas, rápido. | Un solo «Checklist enviado» y una sola fila nueva en Supabase. | Pasa · 20-11-2026 | [folio 4](img/poc/12-doble-clic-folio4.png) · [4 filas](img/poc/13-supabase-4-filas.png) |
+| 10 | Dos pestañas con el mismo pendiente (repetición) | Con dos pestañas abiertas, enviar un checklist **Sin señal** en una, cerrarla y volver a abrir la dirección, y volver a **Con señal** en la otra. | Una sola fila nueva en Supabase, aunque las dos pestañas lo envíen. | Falla · 20-11-2026 (se guardó dos veces). Corregido; por volver a correr | — |
 | — | Formulario (capa 1) | Escribir un N° de OT de 5 dígitos en la pantalla 1. | El formulario avisa junto al campo antes de enviar. | Pasa · 20-11-2026 | [aviso](img/poc/03-formulario-rechaza-ot.png) |
 | — | Persona equivocada | Ver lo que registró otra persona. | No aplica a esta prueba de concepto: no hay inicio de sesión (queda para el Avance 8). La base está cerrada al navegador: solo el servidor puede leerla. | Fuera de alcance | — |
+
+La fila 10 la encontramos al grabar el video: el mismo checklist quedó dos veces en la tabla. Se corrigió con un código único por checklist (`id_envio`): la base no acepta dos filas con el mismo código y el servidor devuelve el folio que ya existía.
 
 Las filas 2 a 9 se corrieron el 20 de noviembre de 2026 en la vista previa de la rama `dev` publicada en Vercel, con la base real en Supabase. Las capturas de la tabla muestran la fecha y la hora en la barra de Windows.
 

@@ -29,9 +29,11 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const fila = await insertar(datos);
-    return res.status(201).json({
+    const { fila, repetido } = await insertar(datos);
+    // 201: se guardó una fila nueva. 200: ese checklist ya estaba guardado y se devuelve el mismo folio.
+    return res.status(repetido ? 200 : 201).json({
       folio: fila.id_checklist,
+      repetido,
       duracion_min: datos.duracion_min,
       horas_hombre: datos.horas_hombre,
       estado: datos.estado
