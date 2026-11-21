@@ -97,10 +97,19 @@
     };
   }
 
+  // Pendientes guardados antes de existir el código: se les calcula uno a partir de sus datos,
+  // así todas las pestañas llegan al mismo código y el servidor no lo guarda dos veces.
+  function idDesdeDatos(c) {
+    var t = [c.id, c.fecha, c.turno, c.inicio, c.termino, c.area, c.equipo, c.equipoAct, c.detalle, c.trab].join('|');
+    var h1 = 5381, h2 = 52711;
+    for (var i = 0; i < t.length; i++) { var k = t.charCodeAt(i); h1 = (h1 * 33) ^ k; h2 = (h2 * 31) ^ k; }
+    return 'p-' + (h1 >>> 0).toString(36) + '-' + (h2 >>> 0).toString(36);
+  }
   S.pendientes.forEach(function (c) {
     if (c.id >= S.siguienteId) S.siguienteId = c.id + 1;
-    if (!c.idEnvio) c.idEnvio = nuevoIdEnvio();   // pendientes guardados antes de existir el código
+    if (!c.idEnvio) c.idEnvio = idDesdeDatos(c);
   });
+  guardarPendientes();
 
   /* ---------- utilidades ---------- */
   var app = document.getElementById('app');
