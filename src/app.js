@@ -793,6 +793,12 @@
   // Si el teléfono vuelve a tener conexión, se reintenta solo.
   window.addEventListener('online', function () { if (S.senal && S.pendientes.length) reenviarPendientes(); });
 
+  // Al recargar, el navegador puede recordar lo elegido en los controles (por ejemplo «Sin señal").
+  // La app parte de lo que muestran, para que la pantalla y el comportamiento digan lo mismo.
+  S.senal = ctl('ctl-senal').value !== 'sin';
+  S.pocInvalido = ctl('ctl-poc').value === 'invalido';
+  if (ctl('ctl-bandeja').value !== 'datos') S.bandeja = [];
+
   render();
   if (ruta() === 'p5') cargarP5();
   if (S.senal && S.pendientes.length) reenviarPendientes();   // pendientes de una visita anterior
