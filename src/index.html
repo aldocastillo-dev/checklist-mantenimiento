@@ -3,21 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ReporteMtto · Prototipo</title>
+  <title>ReporteMtto</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Controles del prototipo: simulan lo que en la app real vendría del inicio de sesión y de la red -->
+  <!-- Controles del prototipo: simulan la señal del teléfono y un envío alterado. El rol ya no se elige aquí: viene de la cuenta. -->
   <section id="protobar" aria-label="Controles del prototipo">
     <p class="proto-title">Prototipo · controles de simulación</p>
-    <div class="proto-row">
-      <label for="ctl-rol">Vista</label>
-      <select id="ctl-rol" autocomplete="off">
-        <option value="supervisor">Supervisor</option>
-        <option value="capataz">Capataz</option>
-        <option value="programador">Programador</option>
-      </select>
-    </div>
     <div class="proto-row">
       <label for="ctl-senal">Señal</label>
       <select id="ctl-senal" autocomplete="off">
@@ -32,14 +24,9 @@
         <option value="invalido">Con N° de OT inválido (PoC)</option>
       </select>
     </div>
-    <div class="proto-row">
-      <label for="ctl-bandeja">Bandeja</label>
-      <select id="ctl-bandeja" autocomplete="off">
-        <option value="datos">Con datos de ejemplo</option>
-        <option value="vacia">Vacía</option>
-      </select>
-    </div>
   </section>
+
+  <div id="sesion-bar" hidden></div>
 
   <main id="app" tabindex="-1"></main>
 

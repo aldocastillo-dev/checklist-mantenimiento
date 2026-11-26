@@ -10,23 +10,23 @@ flowchart LR
     G[GitHub<br/>rama main]
     V[Vercel<br/>publicación]
     F[Frontend<br/>src/index.html y app.js]
-    B[Backend<br/>función src/api/checklists.js]
-    D[(Supabase<br/>tabla checklists)]
+    B[Backend<br/>funciones src/api/checklists.js y sesion.js]
+    D[(Supabase<br/>Auth + tablas checklists y perfiles)]
 
     G -- "despliegue automático" --> V
     P -- "1. abre la dirección pública" --> V
     V -- "2. entrega las pantallas" --> F
-    F -- "3. POST /api/checklists (JSON)" --> B
-    B -- "4. INSERT por HTTPS con la clave secreta" --> D
+    F -- "3. /api/sesion y /api/checklists (JSON + token)" --> B
+    B -- "4. consulta o INSERT por HTTPS con el token de la persona (RLS decide)" --> D
     D -- "5. fila guardada con su folio" --> B
-    B -- "6. 201 con folio, 400 con errores o 503" --> F
+    B -- "6. 200/201, o 400, 401, 403, 404, 409 y 503 con su mensaje" --> F
 ```
 
 | Pieza | Qué hace en nuestra solución | Con qué está hecha | Con quién se comunica |
 |---|---|---|---|
 | Frontend | Muestra las cinco pantallas del checklist, valida los campos antes de enviar y, al tocar «Guardar y enviar», manda los datos al backend. Muestra el folio si se guardó, el error si el servidor lo rechazó, o «Pendiente de envío» si no hay conexión. Guarda los pendientes en el navegador del teléfono y los reenvía al volver la señal. | HTML, CSS y JavaScript sin librerías (`src/`) | Backend, por `POST /api/checklists` |
-| Backend | Recibe el checklist, lo valida de nuevo (el servidor es el que manda: ignora los campos que no están en su lista, rechaza datos inválidos y calcula él mismo la duración y las horas hombre), lo guarda y responde con el folio o con el error. | Función de Node.js (`src/api/checklists.js`, `_validar.js`, `_db.js`), sin librerías | Frontend y Supabase |
-| Base de datos | Guarda cada checklist entregado como una fila de la tabla `checklists`, con las mismas reglas como segunda defensa (el N° de OT con 9 dígitos, turno día o noche, minutos sin valores negativos). Nadie puede leer ni escribir desde el navegador: solo entra el servidor con su clave secreta. | Supabase (PostgreSQL), esquema en `supabase/schema.sql` | Backend, por su API REST |
+| Backend | Recibe el checklist, lo valida de nuevo (el servidor es el que manda: ignora los campos que no están en su lista, rechaza datos inválidos y calcula él mismo la duración y las horas hombre), lo guarda y responde con el folio o con el error. | Funciones de Node.js (`src/api/checklists.js`, `sesion.js`, `_validar.js`, `_usuario.js`, `_supa.js`), sin librerías | Frontend y Supabase |
+| Base de datos | Guarda cada checklist entregado como una fila de la tabla `checklists`, con las mismas reglas como segunda defensa (el N° de OT con 9 dígitos, turno día o noche, minutos sin valores negativos). Desde el Avance 8, cada usuario entra con su sesión y las políticas RLS deciden qué filas ve y cambia (ver `docs/permisos.md`). | Supabase (PostgreSQL), esquema en `supabase/schema.sql` | Backend, por su API REST |
 | Publicación | Pone el sitio y la función en una dirección pública, sin iniciar sesión, y guarda las claves como variables de entorno. | Vercel, con la carpeta raíz `src` | GitHub (recibe el código) y las personas (abren la dirección) |
 | Repositorio | Guarda el código y la documentación; la rama `main` es lo que se publica y lo que se entrega. No contiene claves. | GitHub | Vercel |
 
@@ -65,7 +65,7 @@ flowchart LR
 
 **ADR 2 · Supabase (PostgreSQL) como base de datos**
 - **Contexto:** se necesita guardar el checklist de verdad, con un servicio gratuito que el equipo pueda configurar sin administrar un servidor.
-- **Decisión:** Supabase, al que el servidor le habla por su API web con una clave secreta guardada como variable de entorno en Vercel.
+- **Decisión:** Supabase, al que el servidor le habla por su API web. En el Avance 7 lo hacía con la clave secreta; desde el Avance 8 usa el token de cada persona (ver ADR 4).
 - **Alternativa descartada:** guardar en un archivo o en la memoria del servidor, que se pierde en cada despliegue.
 - **Consecuencias:** depende de un servicio externo; por eso existe el plan de falla («Pendiente de envío»). La clave nunca va en el repositorio.
 
@@ -74,6 +74,12 @@ flowchart LR
 - **Decisión:** el backend son funciones de `src/api/`, que Vercel publica junto con la página, sin servicio extra que pagar ni mantener.
 - **Alternativa descartada:** un servidor aparte (por ejemplo, en otro servicio de alojamiento).
 - **Consecuencias:** un solo lugar de publicación y una sola dirección web; el límite es que cada función es corta y sin estado.
+
+**ADR 4 · El servidor entra a la base con el token de cada persona, no con la clave secreta (Avance 8)**
+- **Contexto:** con la clave secreta, el servidor se saltaba todas las reglas de la base. Si una revisión de permisos en el código fallaba, nada más lo frenaba.
+- **Decisión:** la persona inicia sesión con Supabase Auth. El servidor confirma su token y su rol en cada petición, y entra a la base con ese mismo token y la clave pública. Así las políticas RLS revisan cada fila. La duración, las horas hombre, el autor y quién recibió o anuló los pone la base.
+- **Alternativa descartada:** seguir con la clave secreta y revisar los permisos solo en el servidor.
+- **Consecuencias:** hay tres revisiones independientes (pantalla, servidor y base), y la clave secreta sale de la aplicación. A cambio, el SQL de políticas es más largo y cada petición hace una consulta extra para leer el rol.
 
 ## Evidencia
 

@@ -100,7 +100,7 @@ p { margin: 0; }
 .campo label, .campo .etiqueta { font-weight: 700; }
 .campo .opc { font-weight: 400; }
 
-input[type="text"], input[type="tel"], input[type="time"], input[type="date"], input[type="number"], select, textarea {
+input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="time"], input[type="date"], input[type="number"], select, textarea {
   min-height: 48px;
   font-size: 16px;
   padding: var(--u) calc(var(--u) * 1.5);
@@ -255,3 +255,24 @@ dialog { max-height: 90vh; overflow-y: auto; }
 
 /* El atributo hidden debe ganar a cualquier display de las clases */
 [hidden] { display: none !important; }
+
+/* ---------- Avance 8: sesión, estados y acciones ---------- */
+#sesion-bar { max-width: 480px; margin: 0 auto; padding: var(--u) calc(var(--u) * 2); display: flex; flex-wrap: wrap; gap: var(--u); align-items: center; justify-content: space-between; border-bottom: 1px solid var(--borde); background: var(--fondo); }
+#sesion-bar[hidden] { display: none; }
+.sesion-quien { font-size: 15px; }
+.sesion-nav { display: flex; gap: calc(var(--u) * 2); align-items: center; flex-wrap: wrap; }
+.sesion-nav a { color: var(--accion); font-weight: 700; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+.sesion-nav a[aria-current="page"] { text-decoration: underline; text-underline-offset: 4px; }
+a.btn-sec { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.card-botones a.btn-sec { grid-column: 1 / -1; }
+.estado { font-weight: 700; padding: 2px var(--u); border-radius: 4px; border: 1px solid currentColor; }
+.estado-enviado { color: var(--texto); }
+.estado-recibido { color: #1B5E20; }
+.estado-anulado { color: var(--alerta); }
+.estado-pendiente { color: var(--alerta); }
+.tarjeta.anulado { border-style: dashed; opacity: .85; }
+details.tarjeta summary { font-weight: 700; cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+.btn-sec.peligro { border-color: var(--alerta); color: var(--alerta); }
+.filtros { grid-template-columns: 1fr 1fr 1fr; }
+@media (max-width: 400px) { .filtros { grid-template-columns: 1fr 1fr; } }
+#f-login .acciones { margin-top: 0; }

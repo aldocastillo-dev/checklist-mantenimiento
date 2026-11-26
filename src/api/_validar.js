@@ -99,4 +99,30 @@ function validar(body) {
   };
 }
 
-module.exports = { validar };
+// Cambios sobre un checklist ya guardado (PATCH): recibir, editar el N° de OT o anular.
+function validarAccion(body) {
+  const b = (body && typeof body === 'object' && !Array.isArray(body)) ? body : {};
+  const errores = {};
+  const accion = texto(b.accion);
+  if (!['recibir', 'editar_ot', 'anular'].includes(accion)) {
+    errores.accion = 'La acción debe ser «recibir», «editar_ot» o «anular».';
+    return { errores, datos: null };
+  }
+  const datos = { accion };
+  if (accion === 'recibir' || accion === 'editar_ot') {
+    const nOt = b.n_ot === undefined || b.n_ot === null ? '' : texto(String(b.n_ot));
+    if (accion === 'editar_ot' && !nOt) errores.n_ot = 'Escribe el N° de OT: tiene 9 dígitos, por ejemplo 111254880.';
+    else if (nOt && !/^\d{9}$/.test(nOt)) errores.n_ot = 'El N° de OT tiene 9 dígitos, por ejemplo 111254880. Corrígelo.';
+    if (nOt) datos.n_ot = nOt;
+  }
+  if (accion === 'anular') {
+    const motivo = texto(b.motivo);
+    if (motivo.length < 5) errores.motivo = 'Escribe el motivo de la anulación (al menos 5 caracteres), por ejemplo «Lo envié dos veces».';
+    else if (motivo.length > 300) errores.motivo = 'El motivo puede tener hasta 300 caracteres.';
+    datos.motivo = motivo;
+  }
+  if (Object.keys(errores).length) return { errores, datos: null };
+  return { errores, datos };
+}
+
+module.exports = { validar, validarAccion };

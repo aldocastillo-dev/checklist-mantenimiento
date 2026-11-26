@@ -4,6 +4,8 @@ Enlace: https://checklist-mantenimiento-src.vercel.app
 
 El prototipo está en [`src/`](../src/) (HTML, CSS y JavaScript, sin librerías externas). Las cinco pantallas son las del wireframe del Avance 4 (`docs/wireframes/`) y sus recuadros siguen el «Check list entrega trabajos de mantenimiento» que ya autorizó el mandante: no modificamos el checklist físico, lo pasamos al teléfono. Un reporte registra una actividad.
 
+> **Actualización (Avance 8):** los controles «Vista» y «Bandeja» ya no existen. El rol viene de la cuenta con que se inicia sesión, y la bandeja muestra los checklists reales guardados en Supabase. Quedan «Señal» y «Envío». Lo que sigue describe el prototipo tal como se entregó en el Avance 5. Ver [robustecimiento.md](robustecimiento.md) y [permisos.md](permisos.md).
+
 **Cómo recorrerlo.** La franja negra de arriba son controles del prototipo, no de la app: simulan lo que en la app real vendría del inicio de sesión y de la red.
 - **Vista:** Supervisor o Capataz (empiezan en P1; solo cambia el cargo que aparece en la firma) o Programador (empieza en P5).
 - **Señal:** «Sin señal» activa el camino alternativo de la historia principal; al volver a «Con señal» los checklist pendientes se envían.

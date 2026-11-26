@@ -84,3 +84,32 @@ Herramienta utilizada: Claude (Anthropic).
 - **Error encontrado en la prueba real:** al grabar el video, con dos pestañas abiertas, un checklist enviado sin señal quedó **dos veces** en la tabla: las dos pestañas compartían el pendiente guardado en el navegador y cada una lo envió. Pedimos al agente que lo corrigiera en el servidor y no solo en la pantalla: cada checklist lleva ahora un código único (`id_envio`), la base no acepta dos filas con el mismo código (columna `unique`) y, si llega repetido, el servidor responde con el folio que ya existía. Además, las pestañas se avisan cuando cambian los pendientes. Verificamos que la prueba automática nueva (dos pestañas enviando el mismo pendiente, y el mismo `id_envio` enviado dos veces directo al servidor) **fallaba con el código anterior** y pasa con el corregido (36 revisiones en total).
 - **Segundo error encontrado en la prueba real:** después de recargar, el control decía «Sin señal» pero el checklist se enviaba igual. El navegador recordaba lo elegido en el menú, mientras la aplicación partía siempre «con señal». Se corrigió para que, al abrir, la aplicación lea lo que muestran los controles (y se pidió al navegador no recordarlos). Lo verificamos simulando un navegador que recuerda «Sin señal»: con el código anterior se enviaba y con el corregido queda pendiente.
 - **Prueba con Supabase real:** el 20 de noviembre de 2026, Aldo Castillo la corrió en la vista previa de `dev` en Vercel, con la base real. El caso exitoso dio el folio 1 y su fila apareció en la tabla `checklists`; el N° de OT inválido mostró el mensaje del servidor y la tabla siguió con 1 fila; un checklist enviado sin señal quedó pendiente, sobrevivió al cierre de la pestaña y se guardó solo al reabrir (fila 3); el doble clic guardó una sola fila. Capturas en `docs/img/poc/` y resultados en `docs/prueba-humo.md`.
+
+## Encargo 11: Avance 8 (robustecimiento, seguridad y permisos)
+**Encargo al agente (contexto, intención, restricciones y verificación):**
+- **Contexto:** la PoC del Avance 7 crea el checklist con validación en el servidor y guarda en Supabase, pero sin usuarios. El servidor entraba a la base con la clave secreta, que se salta todas las reglas. Le entregamos como especificación las dos tablas que escribimos primero: las **reglas de validación** campo por campo (hoy en `docs/robustecimiento.md`) y la **matriz de permisos** (supervisor: crea y ve solo los suyos y anula los suyos mientras no estén recibidos; programador: ve todos, recibe, corrige la OT y anula con motivo; planificador: solo consulta; administrador: fuera de la app, y nadie borra).
+- **Intención:** completar las operaciones sobre el checklist (consultar, recibir y anular con baja lógica), con inicio de sesión por roles y denegación por defecto en la pantalla, el servidor y la base (RLS).
+- **Restricciones:** solo el objeto de la PoC (tablas `checklists` y `perfiles`); sin librerías nuevas; la clave secreta fuera de la aplicación; la regla en el formulario **y** en el servidor **y** en la base; ocultar un botón no cuenta como permiso; nunca borrar físicamente; cuentas de prueba ficticias y fuera del repositorio.
+- **Verificación:** probar las políticas entrando como cada rol en un PostgreSQL real; pedir lo prohibido por fuera de la pantalla (consola del navegador y llamada directa a Supabase); correr los 5 intentos de rotura de la clase 6.1 y las 4 pruebas de la clase 6.2 con dos cuentas.
+
+**Registro:**
+- **Objetivo:** que la acción del checklist resista el uso real y que cada rol pueda hacer solo lo que le corresponde.
+- **Instrucción entregada:** el encargo de arriba, con las dos tablas, las instrucciones del Avance 8 y el código del Avance 7.
+- **Respuesta obtenida:**
+  - `supabase/schema.sql` con estados, perfiles, reglas automáticas (trigger) y políticas RLS.
+  - Las funciones `src/api/sesion.js`, `src/api/_usuario.js` y `src/api/_supa.js`.
+  - `src/api/checklists.js` con consultar, recibir, editar OT y anular.
+  - En la pantalla: inicio de sesión, «Mis checklists», la «Bandeja» y el detalle con sus cuatro estados.
+  - Los documentos `docs/robustecimiento.md` y `docs/permisos.md`.
+- **Qué se aceptó y qué se corrigió:**
+  - **La clave secreta en el servidor (venía del Avance 7).** Con ella las políticas RLS no restringían nada, porque esa clave se las salta. Pedimos que el servidor entre a la base con el **token de cada persona** y la clave pública. La clave secreta salió de la aplicación y de Vercel (ADR 4 en `docs/arquitectura.md`).
+  - **Horas hombre falsificables.** El cálculo estaba solo en el servidor, así que un supervisor podía llamar directo a Supabase con su token e inventar las horas. Ahora las calcula la base con una regla automática. Además, el usuario solo puede escribir las columnas permitidas: no su autor, ni las horas, ni quién recibió.
+  - **Supabase caído se leía como sesión vencida.** La prueba automática encontró que, si la autenticación no respondía, el servidor contestaba «Tu sesión expiró» y la app echaba a la persona. Lo corregimos a 503, «No es un error tuyo».
+  - **Pendientes compartidos entre cuentas.** Había una sola lista de pendientes por navegador, así que el checklist sin enviar de un supervisor se podía mandar con la sesión del programador. Ahora hay una lista por cuenta.
+  - **Aceptamos** el 404 igual para «no existe» y para «no es tuyo» (así no se revela qué folios existen), y el 409 cuando dos personas cambian el mismo checklist a la vez.
+- **Cómo se verificó:**
+  - Ejecutamos `schema.sql` dos veces seguidas sobre una copia de la base del Avance 7 con datos, y no falló ni borró nada.
+  - Probamos 34 casos de las políticas entrando como cada rol en PostgreSQL real. Todos pasan.
+  - Corrimos una prueba automática en el navegador con dos cuentas, contra PostgreSQL y PostgREST reales (el mismo motor que usa Supabase). Pasan 41 revisiones: sin sesión, registro ajeno, acción prohibida desde la consola y directo a la base, doble clic, sin señal, sesión vencida y servicio caído.
+  - Buscamos claves en el historial del repositorio y no encontramos ninguna.
+- **Prueba en la dirección publicada:** PENDIENTE: anotar la fecha, quién la hizo y qué se vio con las dos cuentas.

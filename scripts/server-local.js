@@ -1,19 +1,22 @@
 'use strict';
-/* Servidor local para probar la PoC sin Vercel: sirve la carpeta src/ y la función /api/checklists.
+/* Servidor local para probar la PoC sin Vercel: sirve la carpeta src/ y las funciones /api/checklists y /api/sesion.
    Uso: node --env-file=.env scripts/server-local.js   (abre http://localhost:3000) */
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const handler = require('../src/api/checklists.js');
+const FUNCIONES = { '/api/checklists': require('../src/api/checklists.js'), '/api/sesion': require('../src/api/sesion.js') };
 
 const RAIZ = path.join(__dirname, '..', 'src');
 const TIPOS = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8' };
 const PUERTO = process.env.PORT || 3000;
 
 http.createServer((req, res) => {
-  const ruta = new URL(req.url, 'http://localhost').pathname;
+  const u = new URL(req.url, 'http://localhost');
+  const ruta = u.pathname;
+  const handler = FUNCIONES[ruta];
 
-  if (ruta === '/api/checklists') {
+  if (handler) {
+    req.query = Object.fromEntries(u.searchParams);
     let datos = '';
     req.on('data', (c) => { datos += c; if (datos.length > 100000) req.destroy(); });
     req.on('end', () => {
